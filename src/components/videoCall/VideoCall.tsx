@@ -1,18 +1,16 @@
-import React, { useState, useRef, useEffect, FC, forwardRef, useImperativeHandle } from "react";
+import { useState, useRef, useEffect, FC, forwardRef, useImperativeHandle } from "react";
 import Peer from "peerjs";
 import { FaPhone, FaPhoneSlash } from "react-icons/fa";
 import socketService from "../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { fetchPeerId } from "../../service/api";
-import toast from "react-hot-toast";
 
 const socket = socketService.socket;
 
-const VideoCall: FC<any> = forwardRef((props, ref) => {
+const VideoCall: FC<any> = forwardRef((__, ref) => {
    const userId: any = useSelector((state: RootState) => state?.user?.user?.userId);
-   const [peerId, setPeerId] = useState("");
-   const [remotePeerId, setRemotePeerId] = useState("");
+   const [_, setPeerId] = useState("");
    const [incomingCall, setIncomingCall] = useState<any>(null);
    const [callAccepted, setCallAccepted] = useState(false);
    const remoteVideoRef = useRef<HTMLVideoElement>(null);
