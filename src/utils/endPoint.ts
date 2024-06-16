@@ -1,4 +1,4 @@
-export const BASE_URL = 'www.https://hivehub-backend-1.onrender.com/api'
+export const BASE_URL = 'www.https://hivehub-backend.onrender.com/api'
 
 export const SIGNUP_URL = '/auth/signup'
 
