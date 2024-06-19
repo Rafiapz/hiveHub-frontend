@@ -1,5 +1,17 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faBell, faCommentDots, faUserCircle, faPlusCircle, faTimes, faBars, faCrown } from "@fortawesome/free-solid-svg-icons";
+import {
+   faHome,
+   faBell,
+   faCommentDots,
+   faUserCircle,
+   faPlusCircle,
+   faTimes,
+   faBars,
+   faBlog,
+   faClipboardList,
+   faChartPie,
+   faCrown,
+} from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { handleCreatePostModal } from "../../store/slices/posts/postSlice";
 import { Link } from "react-router-dom";
@@ -33,35 +45,35 @@ function Menu() {
             } sm:translate-x-0`}
          >
             <div className="p-4 flex flex-col space-y-4">
-               <Link to="/" className="flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300">
+               <Link to="/" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
                   <FontAwesomeIcon icon={faHome} className="mr-2 text-gray-700" />
                   Home
                </Link>
-               <Link to="/messages" className="flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300">
+               <Link to="/messages" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
                   <FontAwesomeIcon icon={faCommentDots} className="mr-2 text-gray-700" />
                   Messages
                </Link>
                <Link
                   to="/notifications"
-                  className="relative flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300"
+                  className="relative flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                >
                   <FontAwesomeIcon icon={faBell} className="mr-2 text-gray-700" />
                   Notifications
                </Link>
 
-               <Link to="/premium" className="flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300">
+               <Link to="/premium" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
                   <FontAwesomeIcon icon={faCrown} className="mr-2 text-gray-700" />
                   Premium
                </Link>
 
-               <Link to="/profile" className="flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300">
+               <Link to="/profile" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
                   <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-gray-700" />
                   My Profile
                </Link>
 
                <Link
                   to="/polls"
-                  className="sidebar-link flex items-center text-gray-700 hover:text-gray-700 p-2 rounded-md transition-colors duration-300"
+                  className="sidebar-link flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                >
                   <i className="fas fa-poll text-gray-700 mr-2"></i>
                   New Poll

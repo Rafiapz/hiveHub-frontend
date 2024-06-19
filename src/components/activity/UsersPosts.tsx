@@ -2,7 +2,6 @@ import { FC, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { deletePostAction, fetchAllCommentsOfPost, fetchAllposts, fetchUsersPost, likePostAction } from "../../store/actions/post/postActions";
 import { AppDispatch, RootState } from "../../store/store";
-import { useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { confirmationModalReducer } from "../../store/slices/user/userSlice";
 import { handleCommentModal, handleEditPostModal } from "../../store/slices/posts/postSlice";
@@ -24,22 +23,20 @@ const UserPosts: FC = () => {
       dispatch(fetchUsersPost({ target: userId, id: userId }));
    }, []);
 
-   useEffect(() => {
-      dispatch(fetchAllposts({ page })).then((response) => {
-         if (response?.payload?.status !== "ok") {
-            toast(response?.payload?.message, {
-               style: { backgroundColor: "#ff6347", color: "#eeeeee" },
-            });
-         }
-      });
-   }, []);
+   // useEffect(() => {
+   //    dispatch(fetchAllposts({ page })).then((response) => {
+   //       if (response?.payload?.status !== "ok") {
+   //          toast(response?.payload?.message, {
+   //             style: { backgroundColor: "#ff6347", color: "#eeeeee" },
+   //          });
+   //       }
+   //    });
+   // }, []);
 
    const [showOptions, setShowOptions] = useState<{
       status: boolean;
       index: number;
    }>({ status: false, index: 0 });
-
-   const { pathname } = useLocation();
 
    const handleOptionsClick = (index: number) => {
       setShowOptions((prev) => {
@@ -70,10 +67,8 @@ const UserPosts: FC = () => {
             toast(response?.payload?.message, {
                style: { backgroundColor: "#4caf50", color: "white" },
             });
-            if (pathname === "/profile") {
-               dispatch(fetchUsersPost(userId));
-            } else {
-            }
+
+            dispatch(fetchUsersPost(userId));
          } else {
             toast(response?.payload?.message, {
                style: { backgroundColor: "#ff6347", color: "#eeeeee" },
@@ -84,13 +79,8 @@ const UserPosts: FC = () => {
    };
 
    const handleLikePost = (id: number) => {
-      dispatch(likePostAction(id)).then((response) => {
-         if (pathname === "/profile") {
-            dispatch(fetchUsersPost(userId));
-         } else {
-            response?.payload?.post;
-            dispatch(fetchAllposts({ page })).then(() => {});
-         }
+      dispatch(likePostAction(id)).then(() => {
+         dispatch(fetchUsersPost({ target: userId, id: userId }));
       });
    };
 

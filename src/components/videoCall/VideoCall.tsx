@@ -5,6 +5,7 @@ import socketService from "../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { fetchPeerId } from "../../service/api";
+import toast from "react-hot-toast";
 
 const socket = socketService.socket;
 
@@ -14,8 +15,9 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
    const [incomingCall, setIncomingCall] = useState<any>(null);
    const [callAccepted, setCallAccepted] = useState(false);
    const remoteVideoRef = useRef<HTMLVideoElement>(null);
-   const currentUserVideoRef = useRef<HTMLVideoElement>(null);
+   const currentUserVideoRef = useRef<HTMLVideoElement | null>(null);
    const peerInstance = useRef<any>(null);
+   const [calling, setCalling] = useState(false);
 
    useEffect(() => {
       const peer = new Peer();
@@ -27,6 +29,9 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
 
       peer.on("call", (call) => {
          setIncomingCall(call);
+         setTimeout(() => {
+            declineCall();
+         }, 5000);
       });
 
       peerInstance.current = peer;
@@ -60,17 +65,6 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
          });
    };
 
-   const declineCall = () => {
-      incomingCall.close();
-      setIncomingCall(null);
-      setCallAccepted(false);
-   };
-
-   const endCall = () => {
-      peerInstance.current.destroy();
-      window.location.reload();
-   };
-
    useImperativeHandle(
       ref,
       () => {
@@ -82,7 +76,7 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
                      if (remotePeerId === undefined) {
                         throw new Error("Unable to connect");
                      }
-                     console.log(remotePeerId);
+                     setCalling(true);
 
                      navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
                         if (currentUserVideoRef.current) {
@@ -106,7 +100,7 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
                   })
                   .catch((err) => {
                      console.error("Failed to get local stream", err);
-                     alert(err);
+                     toast.error("The person is not online");
                   });
             },
          };
@@ -114,13 +108,72 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
       []
    );
 
+   useEffect(() => {
+      socket.on("call-rejected", () => {
+         if (currentUserVideoRef.current) {
+            const mediaStream = currentUserVideoRef.current.srcObject as MediaStream;
+
+            if (mediaStream && mediaStream.getTracks) {
+               mediaStream.getTracks().forEach((track) => track.stop());
+               setCalling(false);
+               window.location.reload();
+            }
+
+            currentUserVideoRef.current.srcObject = null;
+         }
+
+         currentUserVideoRef.current = null;
+      });
+   }, [socket]);
+
+   useEffect(() => {
+      socket.on("call-ended", () => {
+         console.log("call endeddd");
+
+         if (currentUserVideoRef.current) {
+            const mediaStream = currentUserVideoRef.current.srcObject as MediaStream;
+
+            if (mediaStream && mediaStream.getTracks) {
+               mediaStream.getTracks().forEach((track) => track.stop());
+               setCalling(false);
+               window.location.reload();
+            }
+            currentUserVideoRef.current.srcObject = null;
+         }
+         currentUserVideoRef.current = null;
+      });
+   }, [socket]);
+
+   const declineCall = () => {
+      incomingCall.close();
+      setIncomingCall(null);
+      setCallAccepted(false);
+      setCalling(false);
+      socket.emit("reject-call", incomingCall?.peer);
+   };
+
+   const endCall = () => {
+      peerInstance.current.destroy();
+      window.location.reload();
+      setCalling(false);
+      console.log(peerInstance.current);
+
+      socket.emit("end-call", peerInstance.current._lastServerId);
+   };
+
+   const declineOutGoingCall = () => {
+      peerInstance.current.destroy();
+      window.location.reload();
+      setCalling(false);
+   };
+
    return (
       <div className={`flex flex-col items-center w-[500px] h-[500px] absolute top-32 left-1/3 p-4 `}>
          {incomingCall && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                <div className="bg-white  rounded shadow-lg">
-                  <p className="text-xl font-bold mb-4">Incoming Call from {incomingCall.peer}</p>
-                  <div className="flex justify-center space-x-4">
+                  <p className="text-xl font-bold mb-4 ml-32">Incoming Call</p>
+                  <div className="flex justify-center space-x-4 min-w-96">
                      <button className="bg-green-500 text-white p-2 rounded-full" onClick={answerCall}>
                         <FaPhone size={24} />
                      </button>
@@ -133,7 +186,21 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
          )}
 
          <div className="relative mt-4">
-            <video ref={currentUserVideoRef} muted autoPlay className="w-28 absolute top-20 right-2 border-2 border-white rounded" />
+            <video
+               ref={currentUserVideoRef}
+               muted
+               autoPlay
+               className={!callAccepted ? "absolute w-[500px] h-[500px] top-0 left-0" : `w-28 absolute top-20 right-2 border-2 border-white rounded`}
+            />
+            {!callAccepted && calling && (
+               <button
+                  className="absolute bottom-24 left-1/2 z-50 transform -translate-x-1/2 bg-red-500 text-white p-2 rounded-full"
+                  onClick={declineOutGoingCall}
+               >
+                  <FaPhoneSlash size={24} />
+               </button>
+            )}
+
             <video ref={remoteVideoRef} autoPlay className="w-[500px] h-[500px] max-w-2xl rounded" />
             {callAccepted && (
                <button className="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-red-500 text-white p-2 rounded-full" onClick={endCall}>

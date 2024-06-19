@@ -36,25 +36,9 @@ const OthersPost: FC<any> = ({}) => {
       });
    }, [target]);
 
-   // const handleOptionsClick = (index: number) => {
-   //    setShowOptions((prev) => {
-   //       if (index == prev.index) {
-   //          return {
-   //             index: index,
-   //             status: !prev.status,
-   //          };
-   //       } else {
-   //          return {
-   //             index: index,
-   //             status: true,
-   //          };
-   //       }
-   //    });
-   // };
-
    const handleLikePost = (id: number) => {
       dispatch(likePostAction(id)).then(() => {
-         dispatch(fetchUsersPost(userId));
+         dispatch(fetchUsersPost({ target, id: userId }));
       });
    };
 
@@ -81,7 +65,7 @@ const OthersPost: FC<any> = ({}) => {
                >
                   <div className="flex items-center justify-between mb-4">
                      <div className="flex items-center hover:cursor-pointer">
-                        <img src={item?.userId?.profilePhoto} alt="User" className="rounded-full h-8 w-10 mr-2" />
+                        <img src={item?.userId?.profilePhoto} alt="User" className="rounded-full h-10 w-10 object-cover mr-2" />
                         <p className="font-bold">{item?.userId.fullName}</p>
                      </div>
                      <p className="text-sm mr-4 sm:mr-20 font-bold text-gray-500">
@@ -98,7 +82,7 @@ const OthersPost: FC<any> = ({}) => {
                   {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
 
                   <div className="flex justify-between items-center">
-                     <div className="flex">
+                     <div className="flex items-center gap-5">
                         <div>
                            <FontAwesomeIcon
                               key={item?.id}
@@ -108,14 +92,14 @@ const OthersPost: FC<any> = ({}) => {
                               icon={faHeart}
                               className={`${
                                  setClass(item?._id) ? "text-red-600" : "text-gray-400"
-                              }  mr-4 size-7 cursor-pointer text-xl hover:text-red-600 transition duration-300`}
+                              } mr-2 text-xl hover:text-red-600 transition duration-300`}
                            />
                            <p>{item?.likes}</p>
                         </div>
                         <div>
                            <FontAwesomeIcon
                               icon={faComment}
-                              className="mr-4 text-blue-500 size-7 cursor-pointer text-xl hover:text-blue-600 transition duration-300"
+                              className="mr-2 text-blue-500 text-xl hover:text-blue-600 transition duration-300"
                               onClick={() => {
                                  handleShowComments(item?._id);
                               }}
@@ -123,10 +107,7 @@ const OthersPost: FC<any> = ({}) => {
                            <p>{item?.comments}</p>
                         </div>
                         <div>
-                           <FontAwesomeIcon
-                              icon={faShare}
-                              className="mr-4 text-yellow-300 size-7 cursor-pointer text-xl hover:text-green-600 transition duration-300"
-                           />
+                           <FontAwesomeIcon icon={faShare} className="mr-2 text-yellow-300 text-xl hover:text-green-600 transition duration-300" />
                            <p>{0}</p>
                         </div>
                      </div>

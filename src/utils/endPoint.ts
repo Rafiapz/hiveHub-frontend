@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://hivehub-backend.onrender.com/api'
+export const BASE_URL = 'https://www.hivehub.shop/api'
 
 export const SIGNUP_URL = '/auth/signup'
 
@@ -143,3 +143,5 @@ export const FETCH_IS_USER_BLOCKED_URL = '/auth/is-user-blocked'
 export const FETCH_USERS_POLLS_URL = '/polls/fetch-user-polls'
 
 export const FETCH_PEER_ID = '/chats//fetch-peerId'
+
+export const FETCH_COMPLETE_POSTS = '/posts/fetch-complete-posts'
