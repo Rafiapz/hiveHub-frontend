@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { createPostAction, editPostAction, fetchAllCommentsOfPost, fetchAllReplies, fetchAllStories, fetchAllposts, fetchCompletePosts, fetchOthersStory, fetchUsersLikedPosts, fetchUsersPost, fetchallCommentLikes } from '../../actions/post/postActions'
+import { createPostAction, editPostAction, fetchAllCommentsOfPost, fetchAllReplies, fetchAllStories, fetchAllposts, fetchOthersStory, fetchUsersLikedPosts, fetchUsersPost, fetchallCommentLikes } from '../../actions/post/postActions'
 
 
 

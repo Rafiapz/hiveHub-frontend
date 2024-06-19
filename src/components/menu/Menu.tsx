@@ -1,17 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-   faHome,
-   faBell,
-   faCommentDots,
-   faUserCircle,
-   faPlusCircle,
-   faTimes,
-   faBars,
-   faBlog,
-   faClipboardList,
-   faChartPie,
-   faCrown,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHome, faBell, faCommentDots, faUserCircle, faPlusCircle, faTimes, faBars, faCrown } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { handleCreatePostModal } from "../../store/slices/posts/postSlice";
 import { Link } from "react-router-dom";
