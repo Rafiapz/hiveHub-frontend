@@ -6,6 +6,7 @@ const initialState = {
 
     conversations: [],
     messages: [],
+    videoCall: false
 
 }
 
@@ -15,6 +16,9 @@ const messagesSlice = createSlice({
     reducers: {
         newMessage: (state, action) => {
             state.messages = action?.payload?.data
+        },
+        handleVideoCallModal: (state, action) => {
+            state.videoCall = action?.payload?.status
         },
 
     },
@@ -27,7 +31,7 @@ const messagesSlice = createSlice({
 })
 
 
-export const { newMessage } = messagesSlice.actions;
+export const { newMessage, handleVideoCallModal } = messagesSlice.actions;
 
 
 

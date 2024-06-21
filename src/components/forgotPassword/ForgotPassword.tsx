@@ -24,9 +24,9 @@ const ForgotPassword: FC = () => {
       });
    };
    return (
-      <div className="flex flex-col md:flex-row w-full overflow-auto">
-         <div className="w-full md:w-1/2 mb-8 md:mb-0">
-            <img src="images/front-image.png" className="mt-12 mx-auto md:mt-24" alt="" />
+      <div className="flex flex-col md:flex-row w-full overflow-hidden">
+         <div className="size-1/2   mt-12 mx-auto md:mt-24 ">
+            <img src="images/front-image.png" className=" " alt="" />
          </div>
          <div className="forgot-password-container flex flex-col items-center w-full md:w-1/2 mt-8 md:mt-32">
             <h2 className="text-xl md:text-2xl font-medium text-gray-800 text-center mb-4">Don't worry, we've got you covered!</h2>

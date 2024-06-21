@@ -84,7 +84,7 @@ const Story: FC<any> = ({ setView }: any) => {
 
                         <button
                            onClick={() => setModalIsOpen(true)}
-                           className="transition duration-500 absolute -z- bottom-0 right-0 bg-blue-700 h-8 w-8 rounded-full text-white text-2xl font-semibold border-4 border-white flex justify-center items-center hover:bg-blue-900"
+                           className="transition duration-500 absolute -z- bottom-0 right-0 bg-blue-700 size-6 md:size-8 rounded-full text-white text-2xl font-semibold border-4 border-white flex justify-center items-center hover:bg-blue-900"
                         >
                            +
                         </button>

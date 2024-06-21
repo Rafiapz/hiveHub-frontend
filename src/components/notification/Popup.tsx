@@ -25,9 +25,8 @@ const Popup: FC<any> = ({ data, status }) => {
 
    return (
       <div
-         style={{ left: "550px" }}
          onClick={handleNavigate}
-         className={`fixed top-4  w-1/2 rounded-md shadow-lg text-gray-800 border  bg-white transition-all duration-300 ${
+         className={`fixed top-4  w-1/2 left-[550px] rounded-md shadow-lg text-gray-800 border  bg-white transition-all duration-300 ${
             showPopup ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"
          } z-50 max-w-lg`}
       >

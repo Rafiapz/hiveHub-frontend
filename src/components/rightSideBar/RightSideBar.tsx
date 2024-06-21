@@ -2,7 +2,7 @@ import Searchbox from "../search/Searchbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { logoutAction } from "../../store/actions/auth/userActions";
 import { AppDispatch } from "../../store/store";
 import Users from "../users/Users";
@@ -15,10 +15,13 @@ const RightSideBar: FC = () => {
 
    const { pathname } = useLocation();
 
+   const navigate = useNavigate();
+
    const handleLogout = () => {
       dispatch(logoutAction()).then((response) => {
          if (response?.payload?.status === "ok") {
             socket.disconnect();
+            navigate("/");
          }
       });
    };

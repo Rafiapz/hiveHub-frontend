@@ -231,18 +231,9 @@ const UserPosts: FC = () => {
                                  />
                                  <p>{item?.comments}</p>
                               </div>
-                              {/* <div className="flex items-center mr-8 cursor-pointer" onClick={() => handleSharePost(item)}>
-                                 <FontAwesomeIcon
-                                    icon={faShare}
-                                    className="mr-2 text-yellow-300 text-xl hover:text-green-600 transition duration-300"
-                                 />
-                                 <p>{item?.shares}</p>
-                              </div> */}
+                              <div className="mr-2 text-gray-700 text-l hover:text-green-600 transition duration-300">Shares</div>
+                              <p>{item?.shares}</p>
                            </div>
-
-                           {/* <div className="cursor-pointer">
-                              <FontAwesomeIcon icon={faBookmark} className="text-gray-500 text-xl hover:text-gray-700 transition duration-300" />
-                           </div> */}
                         </div>
                      </div>
                   );

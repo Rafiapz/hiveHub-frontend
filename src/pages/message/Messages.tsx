@@ -28,7 +28,7 @@ const Messages: FC = () => {
       };
    }, [socket]);
    return (
-      <>
+      <div>
          <Header />
          <Menu />
          <Popup notification={notified} data={notificationData} />
@@ -36,7 +36,7 @@ const Messages: FC = () => {
          <div className="hidden lg:block">
             <RightSideBar />
          </div>
-      </>
+      </div>
    );
 };
 

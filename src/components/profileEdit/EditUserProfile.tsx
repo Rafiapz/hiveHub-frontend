@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { editUserPassword, editUserProfile, fetchuser } from "../../store/actions/auth/userActions";
+import { editUserPassword, editUserProfile, fetchuser, logoutAction } from "../../store/actions/auth/userActions";
 import { AppDispatch, RootState } from "../../store/store";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { emailSchema, fullNameSchema, passwordSchema } from "../../schemas/SignupSchema";
@@ -8,6 +8,11 @@ import toast from "react-hot-toast";
 import OtpInput from "react-otp-input";
 import EditEmailCountdown from "../CountdownTimerrr/EditEmailCountdown";
 import { verifyEmailUpdateOtp } from "../../service/api";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import socketService from "../../service/socketService";
+import { useNavigate } from "react-router-dom";
+const socket = socketService.socket;
 
 function EditUserProfile() {
    const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
@@ -22,6 +27,7 @@ function EditUserProfile() {
    const [otpError, setOtpError] = useState("");
 
    const dispatch = useDispatch<AppDispatch>();
+   const navigate = useNavigate();
 
    const handleChangeOtp = (otp: string) => {
       setOtp(otp);
@@ -135,6 +141,15 @@ function EditUserProfile() {
       } catch (error: any) {
          toast.error(error?.response?.data?.message || "An error occured");
       }
+   };
+
+   const handleLogout = () => {
+      dispatch(logoutAction()).then((response) => {
+         if (response?.payload?.status === "ok") {
+            socket.disconnect();
+            navigate("/");
+         }
+      });
    };
 
    return (
@@ -256,6 +271,13 @@ function EditUserProfile() {
                </Formik>
             </div>
          </div>
+         <button
+            onClick={() => handleLogout()}
+            className="bg-red-500 mb-2 w-1/2 ml-40 block sm:hidden hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+         >
+            <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+            Logout
+         </button>
       </div>
    );
 }

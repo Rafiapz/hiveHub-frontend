@@ -117,7 +117,7 @@ function CreatePost() {
          <div className="flex flex-wrap border border-gray-300 border-dashed p-4 text-center mb-4">
             {imageUrl && (
                <div className="mr-4 mb-4 relative">
-                  <img src={imageUrl} alt="Uploaded" className="w-96 sm:max-w-80 sm:h-60 p-1" />
+                  <img src={imageUrl} alt="Uploaded" className="w-96 sm:max-w-80 object-contain sm:h-60 p-1" />
                   <i
                      onClick={() => setImageUrl("")}
                      className="fa-regular fa-circle-xmark fa-2x absolute top-0 right-0 text-red-500 cursor-pointer"

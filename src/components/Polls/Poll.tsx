@@ -6,11 +6,14 @@ import { RootState } from "../../store/store";
 import { format } from "timeago.js";
 import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { pollQuestionSchema } from "../../schemas/PollSchema";
+import { useNavigate } from "react-router-dom";
+import ConnectButton from "../connectButton/ConnectButton";
 
 const Poll = () => {
    const [polls, setPolls] = useState<any>();
    const userId: any = useSelector((state: RootState) => state?.user?.user?.userId);
    const [editing, setEditing] = useState<boolean>(false);
+   const networks: any = useSelector((state: RootState) => state?.networks?.network?.data);
 
    useEffect(() => {
       fetchPolls();
@@ -24,6 +27,18 @@ const Poll = () => {
       } catch (error) {
          toast.error("Failed to load");
       }
+   };
+
+   const navigate = useNavigate();
+
+   const isFollowing = (id: any) => {
+      return networks?.some((ob: any) => {
+         return id == ob?.targetUserId && ob?.sourceUserId === userId;
+      });
+   };
+
+   const handleClick = (id: number, email: string) => {
+      navigate(`/others-profile?userId=${id}&email=${email}`);
    };
 
    const handleVote = async (pollId: any, option: any, optionId: any) => {
@@ -47,7 +62,7 @@ const Poll = () => {
          form.append("option", option);
          form.append("optionId", optionId);
          form.append("userId", userId);
-          await pollVote(form);
+         await pollVote(form);
          toast.success("Success");
          fetchPolls();
       } catch (error) {
@@ -122,6 +137,18 @@ const Poll = () => {
                   <div className="flex flex-col">
                      <span className="text-gray-700 font-semibold">{ob?.userId?.fullName}</span>
                      <p className="text-sm text-gray-500">{format(ob?.createdAt || Date.now())}</p>
+                  </div>
+                  <div className="ml-5">
+                     {isFollowing(ob?.userId?._id) ? (
+                        <button
+                           onClick={() => handleClick(ob?.userId?._id, ob?.userId?.email)}
+                           className="px-3 py-1 rounded-md text-black font-bold border border-black bg-white hover:bg-gray-200 focus:outline-none transition-colors duration-300"
+                        >
+                           View
+                        </button>
+                     ) : (
+                        <ConnectButton id={ob?.userId?._id} content="Follow" />
+                     )}
                   </div>
                   {ob.userId?._id === userId ? (
                      <div className="ml-auto">

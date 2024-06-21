@@ -11,7 +11,7 @@ const EditCoverPhoto: FC = () => {
    const dispatch = useDispatch<AppDispatch>();
 
    return (
-      <div className="flex justify-center w-full h-64 mt-10 ">
+      <div className="flex justify-center w-full h-64 mt-12 ">
          <div style={{ width: "800px" }} className="user-profile mt-1 bg-white rounded-lg shadow-lg h-full relative">
             <div className="cover-photo mb-4 w-full h-full relative">
                {" "}

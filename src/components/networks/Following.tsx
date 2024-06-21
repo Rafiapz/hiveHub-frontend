@@ -43,7 +43,7 @@ const Following: FC = () => {
    };
 
    return (
-      <div className="flex flex-col  md:ml-32 lg:ml-64 xl:ml-80 relative overflow-y-auto">
+      <div className="flex flex-col  md:ml-32 lg:ml-64 xl:ml-[370px] relative overflow-y-auto">
          {following?.map((item: any, i: number) => (
             <div
                key={item?._id}

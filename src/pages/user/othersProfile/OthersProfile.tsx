@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
+import VideoCall from "../../../components/videoCall/VideoCall";
 
 const socket = socketService.socket;
 
@@ -97,6 +98,7 @@ function OthersProfile() {
          <Comments />
          <UnfollowModal />
          <RightSideBar />
+         <VideoCall />
       </>
    );
 }

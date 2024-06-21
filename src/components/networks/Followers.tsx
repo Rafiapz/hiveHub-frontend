@@ -19,7 +19,7 @@ const Followers: FC = () => {
    };
 
    return (
-      <div className="flex flex-col  md:ml-32 lg:ml-64 xl:ml-80 relative overflow-y-auto">
+      <div className="flex flex-col  md:ml-32 lg:ml-64 xl:ml-[370px]  relative overflow-y-auto">
          {followers?.map((item: any) => (
             <div key={item?._id} className="user-card bg-white rounded-lg w-4/5 sm:w-60 md:w-72 lg:w-80 shadow-lg p-4 my-2 mx-2 sm:my-4 sm:mx-4">
                <div className="flex items-center mb-2">

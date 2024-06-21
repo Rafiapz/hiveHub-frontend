@@ -1,22 +1,22 @@
-import { FC, Suspense, lazy, useEffect, useState } from "react";
-
-const Menu = lazy(() => import("../../../components/menu/Menu"));
-const Story = lazy(() => import("../../../components/story/Story"));
-const RightSideBar = lazy(() => import("../../../components/rightSideBar/RightSideBar"));
-const Posts = lazy(() => import("../../../components/post/Posts"));
-const CreatePostModal = lazy(() => import("../../../components/modal/CreatePostModal"));
-const EditPostModal = lazy(() => import("../../../components/modal/EditPostModal"));
-const Comments = lazy(() => import("../../../components/comments/Comments"));
-const ReportPost = lazy(() => import("../../../components/reportPost/ReportPost"));
-const ViewStory = lazy(() => import("../../../components/story/ViewStory"));
-const SharePost = lazy(() => import("../../../components/share/SharePost"));
-const Poll = lazy(() => import("../../../components/Polls/Poll"));
+import { FC, useEffect, useState } from "react";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import LoadingFalBack from "../../../components/loading/LoadingFalBack";
 import Header from "../../../components/header/Header";
+import VideoCall from "../../../components/videoCall/VideoCall";
+
+import Posts from "../../../components/post/Posts";
+import CreatePostModal from "../../../components/modal/CreatePostModal";
+import EditPostModal from "../../../components/modal/EditPostModal";
+import ReportPost from "../../../components/reportPost/ReportPost";
+import Comments from "../../../components/comments/Comments";
+import ViewStory from "../../../components/story/ViewStory";
+import RightSideBar from "../../../components/rightSideBar/RightSideBar";
+import Story from "../../../components/story/Story";
+import Poll from "../../../components/Polls/Poll";
+import SharePost from "../../../components/share/SharePost";
+import Menu from "../../../components/menu/Menu";
 
 const socket = socketService.socket;
 
@@ -65,67 +65,52 @@ const Home: FC = () => {
       <>
          {userData?.role === "admin" ? (
             <div className="bg-gray-100 ">
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Menu />
-               </Suspense>
+               <Menu />
+
                <Header />
                <div className="mt-8"></div>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <CreatePostModal />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <EditPostModal />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Comments />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <RightSideBar />
-               </Suspense>
+
+               <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+
+               <CreatePostModal />
+
+               <EditPostModal />
+
+               <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
+
+               <Comments />
+
+               <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
+
+               <RightSideBar />
             </div>
          ) : (
             <div className="bg-gray-100 overflow-scroll">
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Menu />
-               </Suspense>
+               <Menu />
+
                <Header />
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Story setView={setStoryViewing} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Poll />
-               </Suspense>
+
+               <Story setView={setStoryViewing} />
+
+               <Poll />
+
                <Popup notification={notified} data={notificationData} />
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <CreatePostModal />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <Comments />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
-               </Suspense>
-               <Suspense fallback={<LoadingFalBack />}>
-                  <RightSideBar />
-               </Suspense>
+
+               <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+
+               <CreatePostModal />
+
+               <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
+
+               <Comments />
+
+               <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
+
+               <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
+
+               <RightSideBar />
+
+               <VideoCall />
             </div>
          )}
       </>

@@ -73,7 +73,7 @@ const AddStory: FC<any> = ({ modalIsOpen, closeModal }: any) => {
             onRequestClose={closeModal}
             contentLabel="Report Post Modal"
          >
-            <div className="bg-gray-200 w-full mt-2 p-4 shadow-lg mx-auto rounded-md">
+            <div className="bg-white w-full  p-4 shadow-lg mx-auto rounded-md">
                <h2 className="text-xl font-bold text-center mb-4">Add Story</h2>
                <div className="flex flex-col gap-3 mb-4">
                   <label htmlFor="image-upload" className="cursor-pointer flex items-center">
@@ -82,7 +82,7 @@ const AddStory: FC<any> = ({ modalIsOpen, closeModal }: any) => {
                   </label>
                   <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                </div>
-               <div className="flex justify-center  items-center border border-gray-300 border-dashed p-4 rounded-md ">
+               <div className="flex justify-center  items-center p-4 rounded-md ">
                   {imageUrl && (
                      <div className="flex flex-col">
                         <img src={imageUrl} alt="Uploaded" className="max-w-60 max-h-60 p-1" />

@@ -40,6 +40,7 @@ const OthersCoverPhoto: FC = () => {
    };
 
    const handleUnfollow = (id: any) => {
+      if (!id) toast.error("Not ");
       const data = networks?.filter((ob: any) => ob?.targetUserId === id);
       dispatch(handleUnfollowModal({ status: true, curId: data[0]?._id }));
    };

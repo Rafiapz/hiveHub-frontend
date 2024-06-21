@@ -7,6 +7,7 @@ import UsersTable from "../../../components/usersTable/UsersTable";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import socketService from "../../../service/socketService";
+import VideoCall from "../../../components/videoCall/VideoCall";
 const socket = socketService.socket;
 
 const Dashboard = () => {
@@ -34,6 +35,7 @@ const Dashboard = () => {
          {/* <AdminCard /> */}
          <UsersTable />
          <RightSideBar />
+         <VideoCall />
       </>
    );
 };

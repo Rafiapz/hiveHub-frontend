@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import Header from "../../../components/header/Header";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
+import VideoCall from "../../../components/videoCall/VideoCall";
 const socket = socketService.socket;
 
 const Reports: FC = () => {
@@ -142,6 +143,7 @@ const Reports: FC = () => {
          </div>
          <ViewReport modalIsOpen={modalIsOpen} closeModal={closeModal} report={curReport} />
          <RightSideBar />
+         <VideoCall />
       </>
    );
 };

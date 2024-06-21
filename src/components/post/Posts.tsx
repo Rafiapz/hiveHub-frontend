@@ -10,12 +10,13 @@ import toast from "react-hot-toast";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import { confirmationModalReducer } from "../../store/slices/user/userSlice";
 import { handleCommentModal, handleEditPostModal, handleReportPostId, setSharePost } from "../../store/slices/posts/postSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "timeago.js";
 import InfiniteScroll from "react-infinite-scroll-component";
 import EditPostModal from "../modal/EditPostModal";
 import PostLikesModal from "../modal/PostLikesModal";
 import socketService from "../../service/socketService";
+import ConnectButton from "../connectButton/ConnectButton";
 const socket = socketService.socket;
 
 const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
@@ -30,6 +31,7 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    const [likesModal, setLikesModal] = useState<boolean>(false);
    const [curLikesCount, setCurLikesCount] = useState<number | null>(null);
    const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
+   const networks: any = useSelector((state: RootState) => state?.networks?.network?.data);
 
    useEffect(() => {
       dispatch(fetchAllposts({ page })).then((response) => {
@@ -48,6 +50,18 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    }>({ status: false, index: 0 });
 
    const { pathname } = useLocation();
+
+   const navigate = useNavigate();
+
+   const isFollowing = (id: any) => {
+      return networks?.some((ob: any) => {
+         return id == ob?.targetUserId && ob?.sourceUserId === userId;
+      });
+   };
+
+   const handleClick = (id: number, email: string) => {
+      navigate(`/others-profile?userId=${id}&email=${email}`);
+   };
 
    const handleOptionsClick = (index: number) => {
       setShowOptions((prev) => {
@@ -229,6 +243,18 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                                  <p className="font-bold text-gray-800">{item?.userId?.fullName}</p>
                                  <p className="text-sm text-gray-500">{format(item?.createdAt)}</p>
                               </div>
+                           </div>
+                           <div className="ml-5">
+                              {isFollowing(item?.userId?._id) ? (
+                                 <button
+                                    onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
+                                    className="px-3 py-1 rounded-md text-black font-bold border border-black bg-white hover:bg-gray-200 focus:outline-none transition-colors duration-300"
+                                 >
+                                    View
+                                 </button>
+                              ) : (
+                                 <ConnectButton id={item?.userId?._id} content="Follow" />
+                              )}
                            </div>
                            {showOptions?.status && showOptions?.index === i && (
                               <div

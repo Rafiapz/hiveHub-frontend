@@ -2,7 +2,7 @@ import React, { FC, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faImage, faVideo } from "@fortawesome/free-solid-svg-icons";
+import { faImage } from "@fortawesome/free-solid-svg-icons";
 import { handleEditPostModal } from "../../store/slices/posts/postSlice";
 import { editPostAction, fetchUsersLikedPosts, fetchUsersPost } from "../../store/actions/post/postActions";
 import toast from "react-hot-toast";
@@ -10,7 +10,7 @@ import { useLocation } from "react-router-dom";
 
 const EditPost: FC<any> = ({ setItems }) => {
    const [image, setImage] = useState<File | null>(null);
-   const [video, setVideo] = useState<File | null>(null);
+   const [video] = useState<File | null>(null);
    const originalContent = useSelector((state: RootState) => state.posts.editPostModal.data.content);
    const [content, setContent] = useState<string>(originalContent);
    const dispatch = useDispatch<AppDispatch>();
@@ -40,27 +40,27 @@ const EditPost: FC<any> = ({ setItems }) => {
       }
    };
 
-   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
+   // const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   //    const file = e.target.files?.[0];
 
-      if (file) {
-         setVideo(file);
-         if (!["video/mp4", "video/webm", "video/ogg"].includes(file.type)) {
-            setError("Please select a valid video file (video/mp4, video/webm, video/ogg)");
-            return;
-         } else {
-            const reader = new FileReader();
+   //    if (file) {
+   //       setVideo(file);
+   //       if (!["video/mp4", "video/webm", "video/ogg"].includes(file.type)) {
+   //          setError("Please select a valid video file (video/mp4, video/webm, video/ogg)");
+   //          return;
+   //       } else {
+   //          const reader = new FileReader();
 
-            reader.onload = () => {
-               const thumbnailDataUrl = reader.result as string;
-               setThumbnail(thumbnailDataUrl);
-            };
+   //          reader.onload = () => {
+   //             const thumbnailDataUrl = reader.result as string;
+   //             setThumbnail(thumbnailDataUrl);
+   //          };
 
-            reader.readAsDataURL(file);
-            setError("");
-         }
-      }
-   };
+   //          reader.readAsDataURL(file);
+   //          setError("");
+   //       }
+   //    }
+   // };
 
    const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setContent(e.target.value);
@@ -118,16 +118,16 @@ const EditPost: FC<any> = ({ setItems }) => {
                Upload Photo
             </label>
             <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            <label htmlFor="video-upload" className="cursor-pointer mb-4 md:mb-0 flex items-center">
+            {/* <label htmlFor="video-upload" className="cursor-pointer mb-4 md:mb-0 flex items-center">
                <FontAwesomeIcon icon={faVideo} className="text-blue-500 mr-2" />
                Upload Video
             </label>
-            <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
+            <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} className="hidden" /> */}
          </div>
          <div className="flex flex-wrap border border-gray-300 border-dashed p-4 text-center mb-4">
             {imageUrl && (
                <div className="mr-4 mb-4 relative">
-                  <img src={imageUrl} alt="Uploaded" className="sm:w-96 sm:h-60 w-full max-h-96 p-1" />
+                  <img src={imageUrl} alt="Uploaded" className="sm:w-96 object-contain sm:h-60 w-full max-h-96 p-1" />
                   <i
                      onClick={() => setImageUrl("")}
                      className="fa-regular fa-circle-xmark fa-2x absolute top-0 right-0 text-red-500 cursor-pointer"

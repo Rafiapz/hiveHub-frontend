@@ -63,8 +63,8 @@ function SignupForm() {
       <>
          <Header />
          <div className="flex flex-col md:flex-row w-full overflow-hidden">
-            <div className="w-full md:w-1/2 ">
-               <img src="images/front-image.png" className="mt-12 mx-auto md:mt-24 " alt="" />
+            <div className="size-1/2 hidden sm:block mt-12 mx-auto md:mt-24 ">
+               <img src="images/front-image.png" className=" " alt="" />
             </div>
             <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start">
                <h2 className="text-2xl md:text-3xl  font-bold text-gray-700 -400 mb-4 mt-14 md:ml-8">Sign Up</h2>

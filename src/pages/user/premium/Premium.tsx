@@ -9,6 +9,7 @@ import PremiumSuccessModal from "../../../components/modal/PremiumSuccessModal";
 import Header from "../../../components/header/Header";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
+import VideoCall from "../../../components/videoCall/VideoCall";
 
 const socket = socketService.socket;
 
@@ -199,6 +200,7 @@ const Premium: FC = () => {
 
          <PremiumSuccessModal modalIsOpen={modalIsOpen} closeModal={closeModal} />
          <RightSideBar />
+         <VideoCall />
       </>
    );
 };

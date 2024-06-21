@@ -51,13 +51,15 @@ function Login() {
       <>
          <Header />
          <div className="flex flex-col md:flex-row w-full overflow-hidden">
-            <div className="w-full md:w-1/2 ">
-               <img src="images/front-image.png" className="mt-12 mx-auto md:mt-24 " alt="" />
+            <div className="size-1/2  mt-12 mx-auto md:mt-24 ">
+               <img src="images/front-image.png" className=" " alt="" />
             </div>
             <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start">
-               <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-700 ml-8 mt-10">Login</h2>
                <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={loginSchema}>
                   <Form className="p-4 md:p-8 w-full max-w-md">
+                     <div className="flex  items-center mb-4">
+                        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-700 ">Login</h2>
+                     </div>
                      <div className="flex flex-col mb-4">
                         <label htmlFor="email" className="text-black mb-2">
                            Email
@@ -72,14 +74,22 @@ function Login() {
                         <Field name={"password"} type="password" className="w-full bg-gray-200 rounded-lg px-4 py-2" />
                         <ErrorMessage name="password" className="text-red-700" component={"span"} />
                      </div>
-                     <div className="flex justify-end items-center mb-4">
+                     <div className="">
                         <Link className="text-blue-800" to={"/forgot-password"}>
                            Forgot Password?
                         </Link>
                      </div>
-                     <button type="submit" className="bg-gray-700 text-white py-2 px-4 rounded-lg mb-4 w-full">
+                     <button type="submit" className="bg-gray-700 text-white py-2 px-4 mt-4 rounded-lg mb-4 w-full">
                         Login
                      </button>
+                     <div className="flex  items-center mb-4">
+                        <button
+                           onClick={() => googleAuth()}
+                           className="bg-white ml-20 sm:ml-0 text-black border border-blue-950 py-2 px-4 rounded-lg mb-4"
+                        >
+                           <FontAwesomeIcon icon={faGoogle} /> Login with Google
+                        </button>
+                     </div>
                   </Form>
                </Formik>
                <p className="text-black mb-4 ml-10">
@@ -88,11 +98,6 @@ function Login() {
                      Signup
                   </Link>
                </p>
-               <div className="flex ml-8 items-center w-full">
-                  <button onClick={() => googleAuth()} className="bg-white ml-20 sm:ml-0 text-black border border-blue-950 py-2 px-4 rounded-lg mb-4">
-                     <FontAwesomeIcon icon={faGoogle} /> Login with Google
-                  </button>
-               </div>
             </div>
          </div>
       </>

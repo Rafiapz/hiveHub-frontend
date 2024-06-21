@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { confirmationModalReducer } from "../../store/slices/user/userSlice";
 import { handleCommentModal, handleEditPostModal, setSharePost } from "../../store/slices/posts/postSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBookmark, faComment, faHeart, faShare } from "@fortawesome/free-solid-svg-icons";
+import { faComment, faHeart } from "@fortawesome/free-solid-svg-icons";
 import { format } from "timeago.js";
 import ConfirmationModal from "../modal/ConfirmationModal";
 
@@ -25,9 +25,6 @@ const UsersLikes: FC = () => {
 
    const userId = useSelector((state: RootState) => state?.user?.user?.userId);
    const [curPostId, setCurPostId] = useState<number | null>();
-   // const [hasMore, setHasMore] = useState<boolean>(true);
-   // const likes: any = useSelector((state: RootState) => state?.posts?.posts?.likes);
-   // const posts: any = useSelector((state: RootState) => state.posts.posts.data);
    const [page] = useState<number>(1);
    const [_, setItems] = useState<any>(posts);
 
@@ -55,21 +52,21 @@ const UsersLikes: FC = () => {
 
    const { pathname } = useLocation();
 
-   const handleOptionsClick = (index: number) => {
-      setShowOptions((prev) => {
-         if (index == prev.index) {
-            return {
-               index: index,
-               status: !prev.status,
-            };
-         } else {
-            return {
-               index: index,
-               status: true,
-            };
-         }
-      });
-   };
+   // const handleOptionsClick = (index: number) => {
+   //    setShowOptions((prev) => {
+   //       if (index == prev.index) {
+   //          return {
+   //             index: index,
+   //             status: !prev.status,
+   //          };
+   //       } else {
+   //          return {
+   //             index: index,
+   //             status: true,
+   //          };
+   //       }
+   //    });
+   // };
 
    const handleDeletePostModal = (id: number) => {
       setCurPostId(id);
@@ -143,7 +140,7 @@ const UsersLikes: FC = () => {
                         className="bg-white border  w-full sm:w-[800px] p-6 sm:p-8 rounded-lg shadow-md mx-auto mt-2 hover:shadow-lg transition-shadow duration-300 "
                         onClick={() => setShowOptions({ index: i, status: false })}
                      >
-                        <div className=" flex justify-end">
+                        {/* <div className=" flex justify-end">
                            <div
                               onClick={(e) => {
                                  e.stopPropagation();
@@ -155,7 +152,7 @@ const UsersLikes: FC = () => {
                               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                               <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
                            </div>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center h-10 hover:cursor-pointer">
                            <div className="w-10 h-10 rounded-full overflow-hidden mr-4">
@@ -226,7 +223,7 @@ const UsersLikes: FC = () => {
                         {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
 
                         <div className="flex justify-between items-center">
-                           <div className="flex">
+                           <div className="flex gap-4">
                               <div>
                                  <FontAwesomeIcon
                                     key={item?.id}
@@ -236,14 +233,14 @@ const UsersLikes: FC = () => {
                                     icon={faHeart}
                                     className={`${
                                        setClass(item?._id) ? "text-red-600" : "text-gray-400"
-                                    }  mr-4 size-7 cursor-pointer text-xl hover:text-red-600 transition duration-300`}
+                                    } mr-2 text-xl hover:text-red-600 transition duration-300`}
                                  />
                                  <p>{item?.likes}</p>
                               </div>
                               <div>
                                  <FontAwesomeIcon
                                     icon={faComment}
-                                    className="mr-4 text-blue-500 size-7 cursor-pointer text-xl hover:text-blue-600 transition duration-300"
+                                    className="mr-2 text-blue-500 text-xl hover:text-blue-600 transition duration-300"
                                     onClick={() => {
                                        handleShowComments(item?._id);
                                     }}
@@ -251,16 +248,9 @@ const UsersLikes: FC = () => {
                                  <p>{item?.comments}</p>
                               </div>
                               <div onClick={() => handleSharePost(item)}>
-                                 <FontAwesomeIcon
-                                    icon={faShare}
-                                    className="mr-4 text-yellow-300 size-7 cursor-pointer text-xl hover:text-green-600 transition duration-300"
-                                 />
+                                 <div className="mr-2 text-gray-700 text-l hover:text-green-600 transition duration-300">Shares</div>
                                  <p>{item?.shares}</p>
                               </div>
-                           </div>
-
-                           <div>
-                              <FontAwesomeIcon icon={faBookmark} className="text-gray-500 size-7 cursor-pointer" />
                            </div>
                         </div>
                      </div>
