@@ -58,7 +58,7 @@ function Login() {
                <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={loginSchema}>
                   <Form className="p-4 md:p-8 w-full max-w-md">
                      <div className="flex  items-center mb-4">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-700 ">Login</h2>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-4 mt-8 text-gray-700 ">Login</h2>
                      </div>
                      <div className="flex flex-col mb-4">
                         <label htmlFor="email" className="text-black mb-2">
