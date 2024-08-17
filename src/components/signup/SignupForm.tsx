@@ -64,13 +64,13 @@ function SignupForm() {
          <Header />
          <div className="flex flex-col md:flex-row w-full overflow-hidden">
             <div className="size-1/2 hidden sm:block mt-12 mx-auto md:mt-24 ">
-               <img src="images/front-image.png" className=" " alt="" />
+               <img src="images/front-image.png" className="ml-5 " alt="" />
             </div>
-            <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start">
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center mt-7 md:items-start">
                <h2 className="text-2xl md:text-3xl  font-bold text-gray-700 -400 mb-4 mt-14 md:ml-8">Sign Up</h2>
                <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={signupSchema}>
                   {() => (
-                     <Form className="p-4 md:p-8 w-full max-w-md">
+                     <Form className="p-4  md:pl-8 md:pr-8  w-full max-w-md">
                         <div className="flex flex-col mb-4">
                            <label htmlFor="fullName" className="text-black mb-2">
                               Full Name

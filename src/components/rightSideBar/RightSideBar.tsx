@@ -18,15 +18,12 @@ const RightSideBar: FC = () => {
    const navigate = useNavigate();
 
    const handleLogout = () => {
-      dispatch(logoutAction())
-         .then((response) => {
-            if (response?.payload?.status === "ok") {
-               socket.disconnect();
-            }
-         })
-         .then(() => {
+      dispatch(logoutAction()).then((response) => {
+         if (response?.payload?.status === "ok") {
+            socket.disconnect();
             navigate("/");
-         });
+         }
+      });
    };
 
    return (

@@ -25,10 +25,10 @@ const ForgotPassword: FC = () => {
    };
    return (
       <div className="flex flex-col md:flex-row w-full overflow-hidden">
-         <div className="size-1/2   mt-12 mx-auto md:mt-24 ">
-            <img src="images/front-image.png" className=" " alt="" />
+         <div className="size-1/2 mt-12 mx-auto md:mt-24 md:p-5 ">
+            <img src="images/front-image.png" className="ml-5 " alt="" />
          </div>
-         <div className="forgot-password-container flex flex-col items-center w-full md:w-1/2 mt-8 md:mt-32">
+         <div className="forgot-password-container flex flex-col items-center w-full md:w-1/2 mt-8 md:mt-32 pr-10">
             <h2 className="text-xl md:text-2xl font-medium text-gray-800 text-center mb-4">Don't worry, we've got you covered!</h2>
             <p className="text-gray-600 text-center px-4 md:px-0">
                It happens to the best of us. Enter your email address below, and we'll send you a confirmation email to reset your password.
