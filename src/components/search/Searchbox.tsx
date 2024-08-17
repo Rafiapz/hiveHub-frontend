@@ -1,12 +1,18 @@
 import React, { FC, useState } from "react";
 import { searchUser } from "../../service/api";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 const Searchbox: FC = () => {
    const [suggestions, setSuggestions] = useState<any>([]);
    const navigate = useNavigate();
+   const auth = useSelector((state: RootState) => state?.user?.user?.auth?.isAuth);
 
    const handleInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (!auth) {
+         return;
+      }
       if (event?.target?.value === "") {
          setSuggestions([]);
          return;
