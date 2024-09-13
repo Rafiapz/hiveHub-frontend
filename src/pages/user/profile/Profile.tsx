@@ -1,8 +1,6 @@
 import { Link, Outlet } from "react-router-dom";
 import Comments from "../../../components/comments/Comments";
 import ConverPhoto from "../../../components/converPhoto/CoverPhoto";
-import Menu from "../../../components/menu/Menu";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import UnfollowModal from "../../../components/modal/UnfollowModal";
 import { useEffect, useState } from "react";
 import CreatePostModal from "../../../components/modal/CreatePostModal";
@@ -11,7 +9,6 @@ import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import Header from "../../../components/header/Header";
 import VideoCall from "../../../components/videoCall/VideoCall";
 
 const socket = socketService.socket;
@@ -59,8 +56,6 @@ function Profile() {
 
    return (
       <>
-         <Menu />
-         <Header />
          <ConverPhoto />
          <div className="flex flex-wrap justify-center sm:mt-20 mt-5 py-4 sm:py-8">
             <Link
@@ -106,7 +101,7 @@ function Profile() {
          <Comments />
          <Popup notification={notified} data={notificationData} />
          <UnfollowModal />
-         <RightSideBar />
+
          <VideoCall />
       </>
    );

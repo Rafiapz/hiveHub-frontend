@@ -17,6 +17,7 @@ import EditPostModal from "../modal/EditPostModal";
 import PostLikesModal from "../modal/PostLikesModal";
 import socketService from "../../service/socketService";
 import ConnectButton from "../connectButton/ConnectButton";
+
 const socket = socketService.socket;
 
 const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
@@ -253,7 +254,7 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                                     View
                                  </button>
                               ) : (
-                                 <ConnectButton id={item?.userId?._id} content="Follow" />
+                                 <>{userId !== item?.userId?._id && <ConnectButton id={item?.userId?._id} content="Follow" />}</>
                               )}
                            </div>
                            {showOptions?.status && showOptions?.index === i && (
@@ -310,7 +311,11 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
 
                         <p className="py-4 text-gray-700">{item?.content}</p>
 
-                        {item?.media?.type === "image" && <img src={`${item?.media?.path}`} alt="Posted" className="mb-4 rounded-lg w-full" />}
+                        {item?.media?.type === "image" && (
+                           <div className="w-full h-full">
+                              <img src={`${item?.media?.path}`} alt="Posted" className="mb-4 h-full object-cover rounded-lg w-full" />
+                           </div>
+                        )}
                         {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
 
                         <div className="flex justify-between items-center mt-4">

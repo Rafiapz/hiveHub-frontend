@@ -1,8 +1,5 @@
 import { FC, useEffect, useState } from "react";
 import Notification from "../../../components/notification/Notification";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
-import Menu from "../../../components/menu/Menu";
-import Header from "../../../components/header/Header";
 import { useSelector } from "react-redux";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
@@ -30,11 +27,11 @@ const Notifications: FC = () => {
    }, [socket]);
    return (
       <div>
-         <Menu />
-         <Header />
+         {/* <Menu />
+         <Header /> */}
          <Popup notification={notified} data={notificationData} />
          <Notification message="This is a success notification" type="success" />
-         <RightSideBar />
+         {/* <RightSideBar /> */}
          <VideoCall />
       </div>
    );

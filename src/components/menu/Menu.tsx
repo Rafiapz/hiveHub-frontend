@@ -36,7 +36,7 @@ function Menu() {
 
    return (
       <>
-         <button onClick={toggleMenu} className={` fixed top-0  z-50 sm:hidden bg-gray-800 p-3 text-white w-10 `}>
+         <button onClick={toggleMenu} className={` fixed top-0  z-50 sm:hidden bg-orange-400 p-1 rounded-sm text-white w-10 `}>
             {isOpen ? <FontAwesomeIcon icon={faTimes} /> : <FontAwesomeIcon icon={faBars} />}
          </button>
 
@@ -52,18 +52,18 @@ function Menu() {
                         to="/admin/posts"
                         className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faHome} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faHome} className="mr-2 text-orange-400 " />
                         Home
                      </Link>
                      <Link to="/admin" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
-                        <FontAwesomeIcon icon={faChartPie} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faChartPie} className="mr-2 text-orange-400 " />
                         Dashboard
                      </Link>
                      <Link
                         to="/admin/reports"
                         className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faClipboardList} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faClipboardList} className="mr-2 text-orange-400 " />
                         View Reports
                      </Link>
 
@@ -71,14 +71,14 @@ function Menu() {
                         to="/admin/messages"
                         className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faCommentDots} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faCommentDots} className="mr-2 text-orange-400 " />
                         Messages
                      </Link>
                      <Link
                         to="/admin/notifications"
                         className="relative flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faBell} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faBell} className="mr-2 text-orange-400 " />
                         Notifications
                      </Link>
 
@@ -86,7 +86,7 @@ function Menu() {
                         to="/admin/profile"
                         className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-orange-400 " />
                         My Profile
                      </Link>
 
@@ -94,38 +94,41 @@ function Menu() {
                         to="/admin/polls"
                         className="sidebar-link flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <i className="fas fa-poll text-gray-700 mr-2"></i>
+                        <i className="fas fa-poll text-orange-400  mr-2"></i>
                         New Poll
                      </Link>
                   </>
                ) : (
                   <>
-                     <Link to="/" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
-                        <FontAwesomeIcon icon={faHome} className="mr-2 text-gray-700" />
+                     <Link
+                        to="/"
+                        className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300 hover:text-blue-600"
+                     >
+                        <FontAwesomeIcon icon={faHome} className="mr-2 text-orange-400 transition-colors duration-300" />
                         Home
                      </Link>
                      <Link
                         to="/messages"
                         className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faCommentDots} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faCommentDots} className="mr-2 text-orange-400 " />
                         Messages
                      </Link>
                      <Link
                         to="/notifications"
                         className="relative flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <FontAwesomeIcon icon={faBell} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faBell} className="mr-2 text-orange-400 " />
                         Notifications
                      </Link>
 
                      <Link to="/premium" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
-                        <FontAwesomeIcon icon={faCrown} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faCrown} className="mr-2 text-orange-400" />
                         Premium
                      </Link>
 
                      <Link to="/profile" className="flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300">
-                        <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-gray-700" />
+                        <FontAwesomeIcon icon={faUserCircle} className="mr-2 text-orange-400" />
                         My Profile
                      </Link>
 
@@ -133,7 +136,7 @@ function Menu() {
                         to="/polls"
                         className="sidebar-link flex items-center text-gray-700 hover:bg-slate-200 p-2 rounded-md transition-colors duration-300"
                      >
-                        <i className="fas fa-poll text-gray-700 mr-2"></i>
+                        <i className="fas fa-poll text-orange-400 mr-2"></i>
                         New Poll
                      </Link>
                   </>
@@ -143,7 +146,7 @@ function Menu() {
                {(location?.pathname === "/" || location?.pathname === "/admin/posts") && (
                   <button
                      onClick={() => dispatch(handleCreatePostModal())}
-                     className="bg-gray-700 hover:bg-gray-500 text-white font-semibold py-2 px-4 w-full rounded flex items-center justify-center transition-colors duration-300"
+                     className=" hover:bg-orange-500 text-white bg-orange-400 font-semibold py-2 px-4 w-full rounded flex items-center justify-center transition-colors duration-300"
                   >
                      <FontAwesomeIcon icon={faPlusCircle} className="mr-2" />
                      New Post

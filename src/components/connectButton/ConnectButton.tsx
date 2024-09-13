@@ -30,7 +30,7 @@ function ConnectButton({ id, content }: any) {
          <div className="flex items-center font-medium">
             <button
                onClick={() => handleConnect(id)}
-               className="flex items-center bg-gray-700 text-white py-2 px-4 rounded-md hover:bg-gray-800 transition-colors duration-300"
+               className="flex items-center bg-orange-400 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors duration-300"
             >
                <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

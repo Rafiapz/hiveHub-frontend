@@ -147,6 +147,10 @@ const MessageBox: FC = () => {
    };
 
    const handleSubmit = (event: any) => {
+      if (!message.trim() && !image && !selectedFile) {
+         toast.error("Message cannot be empty");
+         return;
+      }
       event.preventDefault();
       setLoading(true);
       let receiverId: any;

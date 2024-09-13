@@ -79,7 +79,7 @@ function Login() {
                            Forgot Password?
                         </Link>
                      </div>
-                     <button type="submit" className="bg-gray-700 text-white py-2 px-4 mt-4 rounded-lg mb-4 w-full">
+                     <button type="submit" className="bg-orange-400 text-white py-2 px-4 mt-4 rounded-lg mb-4 w-full">
                         Login
                      </button>
                   </Form>

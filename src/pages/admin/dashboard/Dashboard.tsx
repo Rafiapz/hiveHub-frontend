@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import Header from "../../../components/header/Header";
-import Menu from "../../../components/menu/Menu";
 import Popup from "../../../components/notification/Popup";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import UsersTable from "../../../components/usersTable/UsersTable";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
@@ -29,12 +26,10 @@ const Dashboard = () => {
    }, [socket]);
    return (
       <>
-         <Menu />
-         <Header />
          <Popup notification={notified} data={notificationData} />
          {/* <AdminCard /> */}
          <UsersTable />
-         <RightSideBar />
+
          <VideoCall />
       </>
    );

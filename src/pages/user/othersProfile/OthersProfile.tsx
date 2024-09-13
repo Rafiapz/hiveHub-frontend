@@ -1,11 +1,8 @@
-import Menu from "../../../components/menu/Menu";
 import { Link, Outlet, useSearchParams } from "react-router-dom";
 import Comments from "../../../components/comments/Comments";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import OthersCoverPhoto from "../../../components/OthersCoverPhoto/OthersCoverPhoto";
 import UnfollowModal from "../../../components/modal/UnfollowModal";
 import { useEffect, useState } from "react";
-import Header from "../../../components/header/Header";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import Popup from "../../../components/notification/Popup";
@@ -74,8 +71,6 @@ function OthersProfile() {
    };
    return (
       <>
-         <Menu />
-         <Header />
          <Popup notification={notified} data={notificationData} />
          <OthersCoverPhoto />
          <div className="flex flex-wrap justify-center mt-20  py-4 sm:py-8">
@@ -97,7 +92,7 @@ function OthersProfile() {
          <Outlet />
          <Comments />
          <UnfollowModal />
-         <RightSideBar />
+
          <VideoCall />
       </>
    );

@@ -3,20 +3,16 @@ import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import Header from "../../../components/header/Header";
 import VideoCall from "../../../components/videoCall/VideoCall";
-
 import Posts from "../../../components/post/Posts";
 import CreatePostModal from "../../../components/modal/CreatePostModal";
 import EditPostModal from "../../../components/modal/EditPostModal";
 import ReportPost from "../../../components/reportPost/ReportPost";
 import Comments from "../../../components/comments/Comments";
 import ViewStory from "../../../components/story/ViewStory";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import Story from "../../../components/story/Story";
 import Poll from "../../../components/Polls/Poll";
 import SharePost from "../../../components/share/SharePost";
-import Menu from "../../../components/menu/Menu";
 
 const socket = socketService.socket;
 
@@ -65,9 +61,6 @@ const Home: FC = () => {
       <>
          {userData?.role === "admin" ? (
             <div className="bg-gray-100 ">
-               <Menu />
-
-               <Header />
                <div className="mt-8"></div>
 
                <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
@@ -81,15 +74,9 @@ const Home: FC = () => {
                <Comments />
 
                <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
-
-               <RightSideBar />
             </div>
          ) : (
             <div className="bg-gray-100 overflow-scroll">
-               <Menu />
-
-               <Header />
-
                <Story setView={setStoryViewing} />
 
                <Poll />
@@ -107,8 +94,6 @@ const Home: FC = () => {
                <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
 
                <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
-
-               <RightSideBar />
 
                <VideoCall />
             </div>

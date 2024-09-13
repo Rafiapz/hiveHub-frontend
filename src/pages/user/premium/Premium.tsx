@@ -1,12 +1,9 @@
 import { FC, useEffect, useState } from "react";
-import Menu from "../../../components/menu/Menu";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import { createPayment, premiumOrder, validateOrder } from "../../../service/api";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import PremiumSuccessModal from "../../../components/modal/PremiumSuccessModal";
-import Header from "../../../components/header/Header";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
 import VideoCall from "../../../components/videoCall/VideoCall";
@@ -110,21 +107,23 @@ const Premium: FC = () => {
 
    return (
       <>
-         <Menu />
-         <Header />
          <Popup notification={notified} data={notificationData} />
          {userData?.premium ? (
-            <div className="mb-8 ml-96 ">
-               <h2 className="text-2xl  font-bold mb-4">Welcome, {userData?.fullName}!</h2>
-               <p className="text-gray-700 mb-6">As a premium user, you enjoy a range of exclusive benefits:</p>
-               <div className="bg-white rounded-lg shadow-md p-6">
-                  <h3 className="text-lg font-semibold mb-4">Premium Benefits</h3>
-                  <ul className="list-disc pl-4">
-                     <li className="mb-2">Premium Badge on your profile</li>
-                     {/* <li className="mb-2">Access to exclusive content and features</li> */}
-                     {/* <li className="mb-2">Ad-free experience</li> */}
-                     <li className="mb-2">Priority support</li>
-                     <li className="mb-2">Increased visibility</li>
+            <div className="mb-8 mx-auto max-w-4xl p-6  mt-20 bg-gradient-to-r from-orange-300 to-purple-500 rounded-lg shadow-lg text-white">
+               <h2 className="text-3xl font-extrabold mb-4">Welcome, {userData?.fullName}!</h2>
+               <p className="text-indigo-100 mb-6">As a premium user, you enjoy a range of exclusive benefits:</p>
+               <div className="bg-white rounded-lg shadow-lg p-6 text-gray-800">
+                  <h3 className="text-xl font-semibold mb-4 border-b-2 border-indigo-500 pb-2">Premium Benefits</h3>
+                  <ul className="list-disc pl-6 space-y-2">
+                     <li className="hover:text-indigo-600 transition-colors duration-300">Premium Badge on your profile</li>
+                     {/* <li className="hover:text-indigo-600 transition-colors duration-300">
+                       Access to exclusive content and features
+                   </li> */}
+                     {/* <li className="hover:text-indigo-600 transition-colors duration-300">
+                       Ad-free experience
+                   </li> */}
+                     <li className="hover:text-indigo-600 transition-colors duration-300">Priority support</li>
+                     <li className="hover:text-indigo-600 transition-colors duration-300">Increased visibility</li>
                   </ul>
                </div>
             </div>
@@ -199,7 +198,7 @@ const Premium: FC = () => {
          )}
 
          <PremiumSuccessModal modalIsOpen={modalIsOpen} closeModal={closeModal} />
-         <RightSideBar />
+
          <VideoCall />
       </>
    );

@@ -1,9 +1,6 @@
 import { FC, useEffect, useState } from "react";
-import Menu from "../../components/menu/Menu";
 import MessageBox from "../../components/message/MessageBox";
-import Header from "../../components/header/Header";
 import socketService from "../../service/socketService";
-import RightSideBar from "../../components/rightSideBar/RightSideBar";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import Popup from "../../components/notification/Popup";
@@ -29,13 +26,13 @@ const Messages: FC = () => {
    }, [socket]);
    return (
       <div>
-         <Header />
-         <Menu />
+         {/* <Header />
+         <Menu /> */}
          <Popup notification={notified} data={notificationData} />
          <MessageBox />
-         <div className="hidden lg:block">
+         {/* <div className="hidden lg:block">
             <RightSideBar />
-         </div>
+         </div> */}
       </div>
    );
 };

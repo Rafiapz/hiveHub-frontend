@@ -1,13 +1,10 @@
 import { FC, useEffect, useState } from "react";
-import Menu from "../../../components/menu/Menu";
-import RightSideBar from "../../../components/rightSideBar/RightSideBar";
 import { fetchAllReports } from "../../../store/actions/admin/adminActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
 import ViewReport from "../../../components/modal/ViewReport";
 import { rejectReport, resolveReport } from "../../../service/api";
 import toast from "react-hot-toast";
-import Header from "../../../components/header/Header";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
 import VideoCall from "../../../components/videoCall/VideoCall";
@@ -73,8 +70,6 @@ const Reports: FC = () => {
 
    return (
       <>
-         <Menu />
-         <Header />
          <Popup notification={notified} data={notificationData} />
          <div className="container max-w-[800px] mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-6">Reports</h1>
@@ -142,7 +137,7 @@ const Reports: FC = () => {
             </div>
          </div>
          <ViewReport modalIsOpen={modalIsOpen} closeModal={closeModal} report={curReport} />
-         <RightSideBar />
+
          <VideoCall />
       </>
    );

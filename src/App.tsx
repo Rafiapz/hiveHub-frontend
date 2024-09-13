@@ -28,6 +28,7 @@ import Premium from "./pages/user/premium/Premium";
 import PollPage from "./pages/user/polls/PollPage";
 import socketService from "../src/service/socketService";
 import UsersPoll from "./components/Polls/UsersPolls";
+import MainLayout from "./pages/layout/MainLayout";
 const socket = socketService.socket;
 
 function App() {
@@ -75,7 +76,7 @@ function App() {
                      {userData?.role === "admin" && (
                         <Routes>
                            <Route path="/" element={<Navigate to={"/admin"} />} />
-                           <Route path="/admin/">
+                           <Route path="/admin/" element={<MainLayout />}>
                               <Route index element={<Dashboard />} />
                               <Route path="reports" element={<Reports />} />
                               <Route path="notifications" element={<Notifications />} />
@@ -93,23 +94,25 @@ function App() {
                         </Routes>
                      )}
                      <Routes>
-                        <Route path="/" element={userData?.role === "admin" ? <Navigate to={"/admin"} /> : <Home />} />
-                        <Route path="/messages" element={<Messages />} />
-                        <Route path="/direct" />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/premium" element={<Premium />} />
-                        <Route path="/polls" element={<PollPage />} />
-                        <Route path="/profile" element={<Profile />}>
-                           <Route index element={<UserPosts />} />
-                           <Route path={`/profile/polls`} element={<UsersPoll />} />
-                           <Route path="/profile/following" element={<Following />} />
-                           <Route path="/profile/followers" element={<Followers />} />
-                           <Route path="/profile/likes" element={<UsersLikes />} />
-                        </Route>
-                        <Route path="/edit-profile" element={<EditProfile />} />
-                        <Route path="/others-profile" element={<OthersProfile />}>
-                           <Route index element={<OthersProfilePosts />} />
-                           <Route path="/others-profile/polls" element={<UsersPoll />} />
+                        <Route path="/" element={<MainLayout />}>
+                           <Route path="/" element={userData?.role === "admin" ? <Navigate to={"/admin"} /> : <Home />} />
+                           <Route path="/messages" element={<Messages />} />
+                           <Route path="/direct" />
+                           <Route path="/notifications" element={<Notifications />} />
+                           <Route path="/premium" element={<Premium />} />
+                           <Route path="/polls" element={<PollPage />} />
+                           <Route path="/profile" element={<Profile />}>
+                              <Route index element={<UserPosts />} />
+                              <Route path={`/profile/polls`} element={<UsersPoll />} />
+                              <Route path="/profile/following" element={<Following />} />
+                              <Route path="/profile/followers" element={<Followers />} />
+                              <Route path="/profile/likes" element={<UsersLikes />} />
+                           </Route>
+                           <Route path="/edit-profile" element={<EditProfile />} />
+                           <Route path="/others-profile" element={<OthersProfile />}>
+                              <Route index element={<OthersProfilePosts />} />
+                              <Route path="/others-profile/polls" element={<UsersPoll />} />
+                           </Route>
                         </Route>
                      </Routes>
                   </>

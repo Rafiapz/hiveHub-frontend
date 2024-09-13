@@ -113,7 +113,7 @@ function SignupForm() {
                            </div>
                            <ErrorMessage className="text-red-700" name="confirmPassword" component="span" />
                         </div>
-                        <button type="submit" className="bg-gray-700 text-white py-2 px-4 rounded-lg mb-4 w-full">
+                        <button type="submit" className="bg-orange-400 text-white py-2 px-4 rounded-lg mb-4 w-full">
                            Sign Up
                         </button>
                      </Form>
