@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:7700/api'
+export const BASE_URL = 'https://hivehub.shop/api'
 
 export const SIGNUP_URL = '/auth/signup'
 
