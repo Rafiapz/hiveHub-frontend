@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 class SocketService {
     socket;
     constructor() {
-        this.socket = io("https://hivehub.onrender.com");
+        this.socket = io("https://hivehub.shop");
     }
 }
 
