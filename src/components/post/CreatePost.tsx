@@ -8,6 +8,7 @@ import { createPostAction, fetchAllposts } from "../../store/actions/post/postAc
 import Cropper from "react-easy-crop";
 import toast from "react-hot-toast";
 import socketService from "../../service/socketService";
+import ReactLoading from "react-loading";
 const socket = socketService.socket;
 
 function CreatePost() {
@@ -23,7 +24,7 @@ function CreatePost() {
    const [thumbnail, setThumbnail] = useState<string | null>("");
    const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
    const userId: any = useSelector((state: RootState) => state.user.user.userId);
-
+   const isLoading = useSelector((state: RootState) => state.posts.createPost.isLoading);
    const getCroppedImg = (imageSrc: any, pixelCrop: any) => {
       const canvas = document.createElement("canvas");
       canvas.width = pixelCrop.width;
@@ -198,9 +199,16 @@ function CreatePost() {
             <button onClick={() => dispatch(handleCreatePostModal())} className="bg-white text-black font-bold py-2 px-4 rounded mr-2 mb-2 md:mb-0">
                Cancel
             </button>
-            <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
-               Submit
-            </button>
+            {isLoading ? (
+               <button className=" rounded-md bg-orange-400 p-2 text-white hover:bg-orange-700 flex items-center justify-center">
+                  <ReactLoading type={"spin"} color="#36d7b7" height={20} width={23} className="mr-2" />
+                  Loading
+               </button>
+            ) : (
+               <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
+                  Submit
+               </button>
+            )}
          </div>
       </div>
    );

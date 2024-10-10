@@ -202,13 +202,34 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
          <div className={`size-full `}>
             {incomingCall && (
                <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                  <div className="bg-white  rounded shadow-lg">
-                     <p className="text-xl font-bold mb-4 ml-32">Incoming Call:</p>
-                     <div className="flex justify-center space-x-4 min-w-96">
-                        <button className="bg-green-500 text-white p-2 rounded-full" onClick={answerCall}>
+                  <div className="bg-white rounded shadow-lg p-6 w-full max-w-sm">
+                     <p className="text-xl font-bold mb-4 text-center">Incoming Call from:</p>
+
+                     <p className="text-lg text-center text-gray-700 mb-4">Unknown Caller</p>
+
+                     <div className="flex justify-center mb-4">
+                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                           <svg className="w-8 h-8 text-gray-400" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                              <path
+                                 fillRule="evenodd"
+                                 d="M10 0a10 10 0 100 20 10 10 0 000-20zM10 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"
+                                 clipRule="evenodd"
+                              />
+                              <path fillRule="evenodd" d="M10 5a3 3 0 100 6 3 3 0 000-6z" clipRule="evenodd" />
+                              <path
+                                 fillRule="evenodd"
+                                 d="M2.905 15.472a7.937 7.937 0 0114.19 0 .375.375 0 01-.655.33 7.187 7.187 0 00-12.88 0 .375.375 0 01-.655-.33z"
+                                 clipRule="evenodd"
+                              />
+                           </svg>
+                        </div>
+                     </div>
+
+                     <div className="flex justify-center space-x-4">
+                        <button className="bg-green-500 text-white p-4 rounded-full shadow-md" onClick={answerCall}>
                            <FaPhone size={24} />
                         </button>
-                        <button className="bg-red-500 text-white p-2 rounded-full" onClick={declineCall}>
+                        <button className="bg-red-500 text-white p-4 rounded-full shadow-md" onClick={declineCall}>
                            <FaPhoneSlash size={24} />
                         </button>
                      </div>

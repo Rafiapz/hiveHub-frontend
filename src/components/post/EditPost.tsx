@@ -7,6 +7,7 @@ import { handleEditPostModal } from "../../store/slices/posts/postSlice";
 import { editPostAction, fetchUsersLikedPosts, fetchUsersPost } from "../../store/actions/post/postActions";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import ReactLoading from "react-loading";
 
 const EditPost: FC<any> = ({ setItems }) => {
    const [image, setImage] = useState<File | null>(null);
@@ -21,6 +22,7 @@ const EditPost: FC<any> = ({ setItems }) => {
    const [thumbnail, setThumbnail] = useState<string | null>("");
    const postId = useSelector((state: RootState) => state.posts.editPostModal.data._id);
    const userId: any = useSelector((state: RootState) => state.user.user.userId);
+   const isLoading = useSelector((state: RootState) => state.posts.editPost.isLoading);
 
    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -163,9 +165,16 @@ const EditPost: FC<any> = ({ setItems }) => {
             >
                Cancel
             </button>
-            <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
-               Submit
-            </button>
+            {isLoading ? (
+               <button className=" rounded-md bg-orange-400 p-2 text-white hover:bg-orange-700 flex items-center justify-center">
+                  <ReactLoading type={"spin"} color="#36d7b7" height={20} width={23} className="mr-2" />
+                  Loading
+               </button>
+            ) : (
+               <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
+                  Submit
+               </button>
+            )}
          </div>
       </div>
    );

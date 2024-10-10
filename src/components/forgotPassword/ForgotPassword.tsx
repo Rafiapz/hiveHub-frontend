@@ -3,7 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { emailSchema } from "../../schemas/SignupSchema";
 import { forgotPasswordSendEmail } from "../../service/api";
 import toast from "react-hot-toast";
-import LoadingButton from "../loading/LoadingButton";
+import ReactLoading from "react-loading";
 
 const ForgotPassword: FC = () => {
    const [loading, setLoading] = useState(false);
@@ -47,7 +47,10 @@ const ForgotPassword: FC = () => {
                      <ErrorMessage name="email" component="span" className="text-red-500 text-sm" />
                   </div>
                   {loading ? (
-                     <LoadingButton />
+                     <button className="mt-3 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700 flex items-center justify-center">
+                        <ReactLoading type={"spin"} color="#36d7b7" height={20} width={23} className="mr-2" />
+                        Loading
+                     </button>
                   ) : (
                      <button type="submit" className="mt-4 w-full md:w-32 px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700">
                         Continue

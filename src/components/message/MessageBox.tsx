@@ -124,7 +124,6 @@ const MessageBox: FC = () => {
    const handleSelectConversation = (chat: any) => {
       setCurChat(chat);
       const id = chat?.members[0]?._id !== userId ? chat?.members[0]?._id : chat?.members[1]?._id;
-      console.log(id, "to connn");
 
       setRemoteUser(id);
 
@@ -492,45 +491,54 @@ const MessageBox: FC = () => {
 
                                     <div className="flex items-center  ">
                                        {!textWriting && (
-                                          <>
-                                             <button
-                                                onClick={() => setEmojiOn(!emojiOn)}
-                                                className=" w-8 flex justify-center text-gray-800 px-4 py-2 rounded-md"
+                                          <div className="flex space-x-4 items-center">
+                                          <button
+                                             onClick={() => setEmojiOn(!emojiOn)}
+                                             className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-xl rounded-full shadow-md transition-all duration-200 ease-in-out"
+                                             aria-label="Emoji"
+                                          >
+                                             😊
+                                          </button>
+
+                                          <div className="relative">
+                                             <label
+                                                htmlFor="image-upload"
+                                                className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full cursor-pointer shadow-md transition-all duration-200 ease-in-out"
+                                                aria-label="Upload Image"
                                              >
-                                                😊
-                                             </button>
-                                             <div className="flex items-center justify-center   h-10 w-10 rounded-md">
-                                                <label htmlFor="image-upload" className="cursor-pointer flex  items-center">
-                                                   <FontAwesomeIcon icon={faFileImage} className="size-4  text-gray-800" />
-                                                </label>
-                                                <input
-                                                   id="image-upload"
-                                                   type="file"
-                                                   accept="image/*"
-                                                   className="hidden"
-                                                   onChange={handleImageChange}
-                                                />
-                                             </div>
-                                             <div className="flex items-center   w-10 sm:w-12 h-10 rounded-md">
-                                                <label htmlFor="video-upload" className="cursor-pointer mb-4 flex items-center">
-                                                   <FontAwesomeIcon icon={faVideo} className="text-gray-800 size-6 sm:size-6 mt-4  " />
-                                                </label>
-                                                <input
-                                                   id="video-upload"
-                                                   type="file"
-                                                   accept="video/*"
-                                                   onChange={handleVideoChange}
-                                                   className="hidden"
-                                                />
-                                             </div>
-                                          </>
+                                                <FontAwesomeIcon icon={faFileImage} className="text-gray-600 text-xl" />
+                                             </label>
+                                             <input
+                                                id="image-upload"
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={handleImageChange}
+                                             />
+                                          </div>
+
+                                          <div className="relative">
+                                             <label
+                                                htmlFor="video-upload"
+                                                className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full cursor-pointer shadow-md transition-all duration-200 ease-in-out"
+                                                aria-label="Upload Video"
+                                             >
+                                                <FontAwesomeIcon icon={faVideo} className="text-gray-600 text-xl" />
+                                             </label>
+                                             <input
+                                                id="video-upload"
+                                                type="file"
+                                                accept="video/*"
+                                                onChange={handleVideoChange}
+                                                className="hidden"
+                                             />
+                                          </div>
+                                       </div>
                                        )}
                                        {loading ? (
-                                          <div className="pl-3">
-                                             <LoadingButton />
-                                          </div>
+                                          <LoadingButton />
                                        ) : (
-                                          <button onClick={handleSubmit} className="bg-indigo-600 text-white px-4 py-2 rounded-md ml-2">
+                                          <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded-md ml-2">
                                              Send
                                           </button>
                                        )}

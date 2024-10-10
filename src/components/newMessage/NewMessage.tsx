@@ -20,6 +20,7 @@ const NewMessage = ({ modalIsOpen, closeModal, handleFetchConversations, handleS
    const dispatch = useDispatch<AppDispatch>();
 
    const handleClick = (receiverId: any) => {
+      closeModal();
       let flag = "ok";
       let conv;
 
@@ -35,7 +36,7 @@ const NewMessage = ({ modalIsOpen, closeModal, handleFetchConversations, handleS
       if (flag === "return ") {
          handleFetchConversations();
          handleSelectConversation(conv);
-         closeModal();
+
          return;
       }
 

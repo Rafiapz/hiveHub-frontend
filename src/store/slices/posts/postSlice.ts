@@ -12,6 +12,12 @@ const initialState = {
         likes: null,
         error: null
     },
+    createPost: {
+        isLoading: false
+    },
+    editPost: {
+        isLoading: false
+    },
     createPostModal: {
         isOpen: false
     },
@@ -139,12 +145,25 @@ const postSlice = createSlice({
             .addCase(fetchAllposts.rejected, (state) => {
                 state.posts.loading = false
             })
-
+            .addCase(createPostAction.pending, (state) => {
+                state.createPost.isLoading = true
+            })
             .addCase(createPostAction.fulfilled, (state) => {
                 state.createPostModal.isOpen = false
+                state.createPost.isLoading = false
+            })
+            .addCase(createPostAction.rejected, (state) => {
+                state.createPost.isLoading = false
+            })
+            .addCase(editPostAction.pending, (state) => {
+                state.editPost.isLoading = true
             })
             .addCase(editPostAction.fulfilled, (state) => {
                 state.editPostModal.isOpen = false
+                state.editPost.isLoading = false
+            })
+            .addCase(editPostAction.rejected, (state) => {
+                state.editPost.isLoading = false
             })
             .addCase(fetchAllCommentsOfPost.fulfilled, (state, action) => {
                 state.comments.data = action?.payload?.data
