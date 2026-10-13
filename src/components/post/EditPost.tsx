@@ -113,66 +113,101 @@ const EditPost: FC<any> = ({ setItems }) => {
    };
 
    return (
-      <div className="bg-gray-200 w-full mt-2 p-4 shadow-lg mx-auto">
-         <div className="md:flex gap-3 flex-wrap">
-            <label htmlFor="image-upload" className="cursor-pointer mb-4 md:mb-0 flex items-center">
-               <FontAwesomeIcon icon={faImage} className="text-blue-500 mr-2" />
-               Upload Photo
-            </label>
-            <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            {/* <label htmlFor="video-upload" className="cursor-pointer mb-4 md:mb-0 flex items-center">
-               <FontAwesomeIcon icon={faVideo} className="text-blue-500 mr-2" />
-               Upload Video
-            </label>
-            <input id="video-upload" type="file" accept="video/*" onChange={handleVideoChange} className="hidden" /> */}
-         </div>
-         <div className="flex flex-wrap border border-gray-300 border-dashed p-4 text-center mb-4">
-            {imageUrl && (
-               <div className="mr-4 mb-4 relative">
-                  <img src={imageUrl} alt="Uploaded" className="sm:w-96 object-contain sm:h-60 w-full max-h-96 p-1" />
-                  <i
-                     onClick={() => setImageUrl("")}
-                     className="fa-regular fa-circle-xmark fa-2x absolute top-0 right-0 text-red-500 cursor-pointer"
-                  ></i>
-               </div>
-            )}
-            {thumbnail && (
-               <div className="mr-4 mb-4 relative">
-                  <img
-                     src="https://raw.githubusercontent.com/github/explore/43b2caff479914f066fd7761bf9c83adf2666c4e/topics/video/video.png"
-                     alt="Uploaded"
-                     className="max-w-72 max-h-40 p-1 object-cover"
-                  />
-                  <i
-                     onClick={() => setThumbnail("")}
-                     className="fa-regular fa-circle-xmark fa-2x absolute top-0 right-0 text-gray-300 cursor-pointer"
-                  ></i>
-               </div>
-            )}
-            <p className="text-red-700">{error}</p>
-         </div>
-         <textarea
-            value={content}
-            onChange={handleContentChange}
-            placeholder="Write something..."
-            className="w-full p-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500 mb-4"
-            rows={4}
-         ></textarea>
-         <div className="flex justify-end md:items-center md:flex-row flex-col">
+      <div className="p-6">
+         {/* Modal Header */}
+         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <h3 className="text-lg font-bold text-slate-800">Edit Post</h3>
             <button
                onClick={() => dispatch(handleEditPostModal({ status: false }))}
-               className="bg-white text-black font-bold py-2 px-4 rounded mr-2 mb-2 md:mb-0"
+               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+               ✕
+            </button>
+         </div>
+
+         {/* Content input */}
+         <div className="py-4">
+            <textarea
+               value={content}
+               onChange={handleContentChange}
+               placeholder="Update your post..."
+               className="w-full p-3 rounded-2xl border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-800 placeholder-slate-400 text-sm leading-relaxed transition-all resize-none"
+               rows={4}
+            />
+         </div>
+
+         {/* Media Preview */}
+         {(imageUrl || thumbnail) && (
+            <div className="mb-4">
+               {imageUrl && (
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-950/[0.04] max-h-72 flex items-center justify-center">
+                     <img src={imageUrl} alt="Uploaded" className="max-h-72 w-full object-contain p-2" />
+                     <button
+                        onClick={() => setImageUrl("")}
+                        className="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors"
+                        title="Remove image"
+                     >
+                        ✕
+                     </button>
+                  </div>
+               )}
+               {thumbnail && (
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 max-w-72">
+                     <img
+                        src="https://raw.githubusercontent.com/github/explore/43b2caff479914f066fd7761bf9c83adf2666c4e/topics/video/video.png"
+                        alt="Uploaded video"
+                        className="max-w-72 max-h-40 p-1 object-cover"
+                     />
+                     <button
+                        onClick={() => setThumbnail("")}
+                        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors"
+                     >
+                        ✕
+                     </button>
+                  </div>
+               )}
+            </div>
+         )}
+
+         {error && <p className="text-rose-600 text-xs mb-3">{error}</p>}
+
+         {/* Upload trigger bar */}
+         <div className="p-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-600">Change image</span>
+            <label
+               htmlFor="edit-image-upload"
+               className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-xs"
+            >
+               <FontAwesomeIcon icon={faImage} className="text-orange-500" />
+               <span>Choose Photo</span>
+            </label>
+            <input id="edit-image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+         </div>
+
+         {/* Footer actions */}
+         <div className="flex items-center justify-end gap-2.5 mt-5 pt-4 border-t border-slate-100">
+            <button
+               onClick={() => dispatch(handleEditPostModal({ status: false }))}
+               className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
             >
                Cancel
             </button>
             {isLoading ? (
-               <button className=" rounded-md bg-orange-400 p-2 text-white hover:bg-orange-700 flex items-center justify-center">
-                  <ReactLoading type={"spin"} color="#36d7b7" height={20} width={23} className="mr-2" />
-                  Loading
+               <button
+                  disabled
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 opacity-80"
+                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+               >
+                  <ReactLoading type={"spin"} color="#ffffff" height={16} width={16} />
+                  <span>Saving...</span>
                </button>
             ) : (
-               <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
-                  Submit
+               <button
+                  onClick={handleSubmit}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-xs hover:opacity-95"
+                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+               >
+                  Save Changes
                </button>
             )}
          </div>

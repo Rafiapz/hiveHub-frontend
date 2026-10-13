@@ -189,184 +189,226 @@ const Comments: FC = () => {
    };
 
    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-         <div className="fixed inset-0 bg-gray-900 opacity-50"></div>
-         <div className="bg-white p-8 rounded-lg z-50 w-full max-w-xl mx-auto relative">
-            <button className="absolute top-0 right-0 m-1 text-gray-500 w-20 h-10 focus:outline-none" onClick={() => handleCloseModal()}>
-               <i className="fa-regular fa-circle-xmark fa-2x"></i>
-            </button>
-            <div className="max-w-sm mx-auto mb-4">
-               <Formik initialValues={initialValues} onSubmit={handleCommentSubmit} validationSchema={commentSchema}>
-                  <Form>
-                     <div className="flex">
-                        <Field
-                           name="comment"
-                           type="text"
-                           className="w-full px-4 py-2 border border-gray-300 rounded"
-                           placeholder="Add a comment..."
-                        />
-                        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                           <FontAwesomeIcon icon={faPaperPlane} />
-                        </button>
-                     </div>
-                     <ErrorMessage className="text-red-700" name="comment" component="span" />
-                  </Form>
-               </Formik>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+         <div
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
+            onClick={() => handleCloseModal()}
+         />
+         <div className="relative bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden animate-fade-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+               <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-slate-900">Comments</h3>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
+                     {allComments?.length || 0}
+                  </span>
+               </div>
+               <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
+                  onClick={() => handleCloseModal()}
+               >
+                  ✕
+               </button>
             </div>
-            <ul className="list-none p-0 max-h-[300px] overflow-y-auto">
-               {allComments?.map((item: any, i: number) => {
-                  return (
-                     <div key={item?._id + "comments"}>
-                        {item?.isEditing ? (
-                           <div className="relative mb-4 px-4 pt-2 border border-gray-300 rounded">
-                              <div className="max-w-sm mx-auto mb-4">
-                                 <div className="flex items-center">
-                                    <img src={item?.userId?.profilePhoto} alt="" className="w-8 h-8 rounded-full mr-2" />
-                                    <div>
-                                       <p className="font-semibold">{item?.userId?.fullName}</p>
-                                       <p className="text-sm text-gray-500">{item?.createAt}</p>
-                                    </div>
+
+            {/* Comments List */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+               {allComments && allComments.length > 0 ? (
+                  allComments?.map((item: any, i: number) => {
+                     return (
+                        <div key={item?._id + "comments"} className="relative">
+                           {item?.isEditing ? (
+                              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                                 <div className="flex items-center gap-2 mb-2">
+                                    <img
+                                       src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                                       alt=""
+                                       className="w-7 h-7 rounded-full object-cover"
+                                    />
+                                    <p className="font-bold text-xs text-slate-800">{item?.userId?.fullName}</p>
                                  </div>
-                                 <br />
                                  <Formik
                                     initialValues={{ comment: item?.comment }}
                                     onSubmit={(values, actions) => handleEditCommentSubmit(values, actions, item?._id, item?.postId, i)}
                                     validationSchema={commentSchema}
                                  >
-                                    <Form>
-                                       <div className="flex">
-                                          <Field
-                                             name="comment"
-                                             type="text"
-                                             className="w-full px-4 py-2 border border-gray-300 rounded"
-                                             placeholder="Add a comment..."
-                                          />
-                                          <div className="flex ml-2 gap-1">
-                                             <button
-                                                type="button"
-                                                className="ml-2 px-2 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm"
-                                                onClick={() => {
-                                                   dispatch(fetchAllCommentsOfPost(item?.postId));
-                                                   handleOptionsClick(i);
-                                                }}
-                                             >
-                                                Cancel
-                                             </button>
-                                             <button type="submit" className="px-2 py-1  bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
-                                                Submit
-                                             </button>
-                                          </div>
+                                    <Form className="space-y-2">
+                                       <Field
+                                          name="comment"
+                                          type="text"
+                                          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                          placeholder="Edit comment..."
+                                       />
+                                       <div className="flex justify-end gap-2">
+                                          <button
+                                             type="button"
+                                             className="px-3 py-1 text-xs font-semibold text-slate-600 bg-slate-200 hover:bg-slate-300 rounded-lg transition-colors"
+                                             onClick={() => {
+                                                dispatch(fetchAllCommentsOfPost(item?.postId));
+                                                handleOptionsClick(i);
+                                             }}
+                                          >
+                                             Cancel
+                                          </button>
+                                          <button
+                                             type="submit"
+                                             className="px-3 py-1 text-xs font-semibold text-white rounded-lg transition-all shadow-xs"
+                                             style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                                          >
+                                             Save
+                                          </button>
                                        </div>
-                                       <ErrorMessage className="text-red-700" name="comment" component="span" />
+                                       <ErrorMessage className="text-rose-600 text-xs block" name="comment" component="span" />
                                     </Form>
                                  </Formik>
                               </div>
-                           </div>
-                        ) : (
-                           <li key={item?._id} className="relative mb-4 px-4 py-2 rounded">
-                              {
-                                 <div className="absolute top-0 right-0 mt-2 mr-1">
-                                    <div
+                           ) : (
+                              <div className="group relative p-3 rounded-2xl bg-slate-50/70 hover:bg-slate-50 border border-slate-100 transition-colors">
+                                 {/* 3-dots options */}
+                                 <div className="absolute top-2.5 right-2.5">
+                                    <button
                                        onClick={() => handleOptionsClick(i)}
-                                       className="relative flex flex-col gap-1 hover:bg-gray-200 w-4 h-10 justify-center items-center"
+                                       className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
                                     >
-                                       <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                                       <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                                       <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                       •••
+                                    </button>
+                                    {showOptions.index === i && showOptions.status && (
+                                       <div className="absolute right-0 top-8 w-28 bg-white border border-slate-100 shadow-xl rounded-xl z-20 py-1 overflow-hidden animate-fade-in text-xs font-medium">
+                                          {item?.userId?._id === userId ? (
+                                             <>
+                                                <button
+                                                   onClick={() => handleIsEditing(i)}
+                                                   className="w-full text-left px-3 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                                                >
+                                                   ✏️ Edit
+                                                </button>
+                                                <button
+                                                   onClick={() => handleCommentDelete(item?._id, i)}
+                                                   className="w-full text-left px-3 py-2 hover:bg-rose-50 text-rose-600 transition-colors"
+                                                >
+                                                   🗑️ Delete
+                                                </button>
+                                             </>
+                                          ) : (
+                                             <button
+                                                onClick={() => setReplying(true)}
+                                                className="w-full text-left px-3 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                                             >
+                                                ↩️ Reply
+                                             </button>
+                                          )}
+                                       </div>
+                                    )}
+                                 </div>
+
+                                 <div className="flex items-center gap-2.5 mb-1.5">
+                                    <img
+                                       src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                                       alt=""
+                                       className="w-7 h-7 rounded-full object-cover ring-1 ring-slate-200"
+                                    />
+                                    <div>
+                                       <p className="font-bold text-xs text-slate-900">{item?.userId?.fullName}</p>
+                                       <p className="text-[10px] text-slate-400">{item?.createAt}</p>
                                     </div>
                                  </div>
-                              }
 
-                              <div className="flex items-center">
-                                 <img src={item?.userId?.profilePhoto} alt="" className="w-8 h-8 rounded-full mr-2 object-cover" />
-                                 <div>
-                                    <p className="font-semibold">{item?.userId?.fullName}</p>
-                                    <p className="text-sm text-gray-500">{item?.createAt}</p>
-                                 </div>
-                              </div>
-                              <br />
-                              <p className="ml-3 font-sans">{item?.comment}</p>
-                              <div className="">
-                                 <div className="flex items-center">
-                                    <HeartIcon commentId={item?._id} />
-                                    <p className="mt-2 ">{item?.likes}</p>
+                                 <p className="text-slate-800 text-sm ml-9 leading-relaxed break-words">{item?.comment}</p>
+
+                                 <div className="flex items-center gap-3 ml-9 mt-2 text-xs">
+                                    <div className="flex items-center gap-1">
+                                       <HeartIcon commentId={item?._id} />
+                                       <span className="text-slate-500 font-semibold">{item?.likes || 0}</span>
+                                    </div>
+
                                     {seeReplies?.status === true && seeReplies?.index === i ? (
-                                       <p
-                                          className="text-gray-700 px-4 rounded mt-3 hover:text-gray-900 hover:cursor-pointer text-sm"
+                                       <button
+                                          className="text-orange-600 font-semibold hover:underline"
                                           onClick={() => handleCloseSeeReplies(i)}
                                        >
                                           Hide replies
-                                       </p>
+                                       </button>
                                     ) : (
-                                       <p
-                                          className="px-4 text-gray-700 mt-3 rounded hover:text-gray-900 hover:cursor-pointer text-sm"
+                                       <button
+                                          className="text-slate-500 font-semibold hover:text-slate-800"
                                           onClick={() => handleSeeReplies(item?._id, i)}
                                        >
-                                          See replies
-                                       </p>
+                                          Replies
+                                       </button>
                                     )}
                                  </div>
+
+                                 {replying && (
+                                    <div className="mt-3 ml-9">
+                                       <Formik
+                                          initialValues={{ reply: "" }}
+                                          onSubmit={(values, actions) => handleReplyCommentSubmit(values, actions, item?._id, i)}
+                                          validationSchema={replyCommentSchema}
+                                       >
+                                          <Form>
+                                             <div className="flex gap-2">
+                                                <Field
+                                                   name="reply"
+                                                   type="text"
+                                                   className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-orange-500"
+                                                   placeholder="Write a reply..."
+                                                />
+                                                <button
+                                                   type="submit"
+                                                   className="px-3 py-1.5 text-xs font-semibold text-white rounded-xl shadow-xs"
+                                                   style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                                                >
+                                                   <FontAwesomeIcon icon={faPaperPlane} />
+                                                </button>
+                                             </div>
+                                             <ErrorMessage className="text-rose-600 text-xs block mt-1" name="reply" component="span" />
+                                          </Form>
+                                       </Formik>
+                                    </div>
+                                 )}
+
+                                 {seeReplies?.status === true && seeReplies?.index === i && (
+                                    <div className="mt-2 ml-9">
+                                       <Replies />
+                                    </div>
+                                 )}
                               </div>
+                           )}
+                        </div>
+                     );
+                  })
+               ) : (
+                  <div className="py-8 text-center text-slate-400 text-sm">
+                     <p>No comments yet.</p>
+                     <p className="text-xs text-slate-400 mt-1">Be the first to share your thoughts!</p>
+                  </div>
+               )}
+            </div>
 
-                              {showOptions.index === i && showOptions.status && (
-                                 <div className="absolute top-1 right-5 w-28 h-22 bg-blue-300 mt-2 mr-4 border border-gray-300 shadow-lg rounded-md">
-                                    <ul>
-                                       {item?.userId?._id === userId ? (
-                                          <>
-                                             <li onClick={() => handleIsEditing(i)} className="p-1 hover:bg-blue-500">
-                                                <button>Edit</button>
-                                             </li>
-                                             <li onClick={() => handleCommentDelete(item?._id, i)} className="p-1 hover:bg-blue-500">
-                                                <button>Delete</button>
-                                             </li>
-                                          </>
-                                       ) : (
-                                          <>
-                                             <li
-                                                onClick={() => {
-                                                   setReplying(true);
-                                                }}
-                                                className="p-1 hover:bg-blue-500"
-                                             >
-                                                <button>Reply</button>
-                                             </li>
-                                          </>
-                                       )}
-                                    </ul>
-                                 </div>
-                              )}
-                              {replying && (
-                                 <div className="max-w-sm mt-2 mx-auto mb-4">
-                                    <Formik
-                                       initialValues={{ reply: "" }}
-                                       onSubmit={(values, actions) => handleReplyCommentSubmit(values, actions, item?._id, i)}
-                                       validationSchema={replyCommentSchema}
-                                    >
-                                       <Form>
-                                          <div className="flex">
-                                             <Field
-                                                name="reply"
-                                                type="text"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded"
-                                                placeholder="Reply to this comment..."
-                                             />
-                                             <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                                <FontAwesomeIcon icon={faPaperPlane} />
-                                             </button>
-                                          </div>
-                                          <ErrorMessage className="text-red-700" name="reply" component="span" />
-                                       </Form>
-                                    </Formik>
-                                 </div>
-                              )}
-
-                              {seeReplies?.status === true && seeReplies?.index === i && <Replies />}
-                           </li>
-                        )}
+            {/* Bottom Add Comment Bar */}
+            <div className="p-4 border-t border-slate-100 bg-white">
+               <Formik initialValues={initialValues} onSubmit={handleCommentSubmit} validationSchema={commentSchema}>
+                  <Form>
+                     <div className="flex items-center gap-2">
+                        <Field
+                           name="comment"
+                           type="text"
+                           className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                           placeholder="Write a comment..."
+                        />
+                        <button
+                           type="submit"
+                           className="w-10 h-10 rounded-2xl text-white flex items-center justify-center transition-all hover:opacity-95 shadow-xs flex-shrink-0"
+                           style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+                           title="Post comment"
+                        >
+                           <FontAwesomeIcon icon={faPaperPlane} className="text-xs" />
+                        </button>
                      </div>
-                  );
-               })}
-            </ul>
+                     <ErrorMessage className="text-rose-600 text-xs block mt-1.5 px-1" name="comment" component="span" />
+                  </Form>
+               </Formik>
+            </div>
          </div>
       </div>
    );

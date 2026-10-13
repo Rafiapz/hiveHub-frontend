@@ -6,10 +6,12 @@ import { Outlet } from "react-router-dom";
 
 const MainLayout = () => {
    return (
-      <div>
+      <div className="min-h-screen" style={{ background: '#F1F5F9' }}>
          <Header />
          <Menu />
-         <Outlet />
+         <div className="pt-14 min-h-screen">
+            <Outlet />
+         </div>
          <RightSideBar />
       </div>
    );

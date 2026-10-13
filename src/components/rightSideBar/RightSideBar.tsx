@@ -1,6 +1,6 @@
 import Searchbox from "../search/Searchbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faSignOutAlt, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { logoutAction } from "../../store/actions/auth/userActions";
@@ -26,17 +26,48 @@ const RightSideBar: FC = () => {
       });
    };
 
+   if (
+      pathname === "/messages" ||
+      pathname === "/admin/messages" ||
+      pathname.startsWith("/profile") ||
+      pathname === "/edit-profile" ||
+      pathname.startsWith("/others-profile") ||
+      pathname === "/notifications" ||
+      pathname === "/premium" ||
+      pathname === "/polls"
+   ) {
+      return null;
+   }
+
    return (
-      <div className="hidden md:flex bg-gray-50 mt-10 h-full w-full fixed top-0 right-0 sm:w-80 flex-col shadow-lg">
-         <div className="p-4">
+      <div className="hidden md:flex mt-14 h-[calc(100vh-56px)] w-72 fixed top-0 right-0 flex-col bg-white border-l border-slate-200/80 shadow-xs">
+         {/* Search section */}
+         <div className="p-4 border-b border-slate-100">
             <Searchbox />
          </div>
-         <Users />
+
+         {/* People you may know */}
+         <div className="px-4 py-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+               <FontAwesomeIcon icon={faUsers} className="text-orange-500 text-sm" />
+               <span className="text-slate-500 text-xs font-bold tracking-wider uppercase">People you may know</span>
+            </div>
+         </div>
+
+         {/* Users list */}
+         <div className="flex-1 overflow-y-auto">
+            <Users />
+         </div>
+
+         {/* Logout button */}
          {pathname === "/edit-profile" && (
-            <div className="flex justify-end items-start mb-5 p-4">
-               <button onClick={() => handleLogout()} className="bg-red-500 mb-2 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-                  <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
-                  Logout
+            <div className="p-4 border-t border-slate-100">
+               <button
+                  onClick={() => handleLogout()}
+                  className="w-full flex items-center justify-center gap-2 text-rose-600 font-semibold py-2.5 px-4 rounded-xl text-sm bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all duration-200 shadow-2xs"
+               >
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  <span>Log Out</span>
                </button>
             </div>
          )}

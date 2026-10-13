@@ -29,42 +29,57 @@ const Users: FC = () => {
       navigate(`/others-profile?userId=${id}&email=${email}`);
    };
 
-   // const handleMeessageClick = (id: number) => {
-   //    navigate(`/messages?userId=${id}`);
-   // };
-
    return (
-      <div className="flex flex-col items-center overflow-y-auto">
-         {users?.map((user: any) => (
-            <div key={user?._id} className="w-full max-w-md mb-6">
-               {user?.role !== "admin" && (
-                  <div className="user-card bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                     <div className="flex p-6">
-                        <div className="profile-photo hover:cursor-pointer" onClick={() => handleClick(user?._id, user?.email)}>
-                           <img src={user?.profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover" />
-                        </div>
-                        <div className="ml-4 flex-grow">
-                           <div className="user-name text-lg font-semibold hover:cursor-pointer">
-                              <div onClick={() => handleClick(user?._id, user?.email)}>{user?.fullName}</div>
-                           </div>
-                           <div className="mt-2 flex items-center">
-                              {isFollowing(user?._id) ? (
-                                 <button
-                                    onClick={() => handleClick(user?._id, user?.email)}
-                                    className="px-3 py-1 rounded-md text-black font-bold border border-black bg-white hover:bg-gray-200 focus:outline-none transition-colors duration-300"
-                                 >
-                                    View
-                                 </button>
-                              ) : (
-                                 <ConnectButton id={user?._id} content="Follow" />
-                              )}
-                           </div>
-                        </div>
-                     </div>
+      <div className="flex flex-col overflow-y-auto px-3 py-2">
+         {users?.map((user: any) =>
+            user?.role !== "admin" && user?._id !== userId ? (
+               <div
+                  key={user?._id}
+                  className="flex items-center gap-3 px-2 py-3 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100 last:border-b-0 group"
+               >
+                  {/* Avatar */}
+                  <div
+                     className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 cursor-pointer ring-2 ring-slate-100 group-hover:ring-orange-400/50 transition-all bg-slate-100"
+                     onClick={() => handleClick(user?._id, user?.email)}
+                  >
+                     <img
+                        src={user?.profilePhoto || "/placeholder-avatar.png"}
+                        alt={user?.fullName || "Profile"}
+                        className="w-full h-full object-cover"
+                        onError={(e: any) => {
+                           e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              user?.fullName || "User"
+                           )}&background=F97316&color=fff`;
+                        }}
+                     />
                   </div>
-               )}
-            </div>
-         ))}
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0" onClick={() => handleClick(user?._id, user?.email)}>
+                     <p className="text-slate-800 text-sm font-semibold truncate group-hover:text-orange-600 transition-colors">
+                        {user?.fullName}
+                     </p>
+                     <p className="text-slate-400 text-xs truncate font-medium">
+                        {user?.email?.split("@")[0] ? `@${user.email.split("@")[0]}` : user?.email}
+                     </p>
+                  </div>
+
+                  {/* Action */}
+                  <div className="flex-shrink-0">
+                     {isFollowing(user?._id) ? (
+                        <button
+                           onClick={() => handleClick(user?._id, user?.email)}
+                           className="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition-all duration-200"
+                        >
+                           View
+                        </button>
+                     ) : (
+                        <ConnectButton id={user?._id} content="Follow" />
+                     )}
+                  </div>
+               </div>
+            ) : null
+         )}
       </div>
    );
 };

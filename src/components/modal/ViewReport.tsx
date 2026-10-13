@@ -14,34 +14,32 @@ const ViewReport: FC<any> = ({ modalIsOpen, closeModal, report }) => {
    return (
       <Modal
          appElement={document.getElementById("root") as HTMLElement}
-         overlayClassName="modal-bg-overlay fixed inset-0 z-50 flex items-center justify-center"
-         className="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-auto relative"
+         overlayClassName="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+         className="bg-white rounded-3xl shadow-2xl border border-slate-100 max-w-2xl w-full mx-auto relative outline-none animate-fade-in overflow-hidden"
          isOpen={modalIsOpen}
          onRequestClose={closeModal}
          contentLabel="View Report"
       >
          <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-               <h2 className="text-2xl font-bold">View Report</h2>
-               <button className="text-gray-500 hover:text-gray-700 focus:outline-none" onClick={closeModal}>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
+               <h2 className="text-lg font-bold text-slate-900">Report Details</h2>
+               <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors" onClick={closeModal}>
+                  ✕
                </button>
             </div>
-            {report?.postId?.media?.type !== "undefined" && (
-               <div className="mb-4">
-                  <img src={report?.postId?.media?.path} className="max-h-96 mx-auto" />
+            {report?.postId?.media?.path && report?.postId?.media?.type !== "undefined" && (
+               <div className="mb-4 rounded-2xl overflow-hidden bg-slate-950/[0.04] border border-slate-200/80 flex items-center justify-center max-h-[460px]">
+                  <img src={report?.postId?.media?.path} alt="Reported media" className="max-h-[460px] w-full object-contain" />
                </div>
             )}
             {report?.postId?.content && (
-               <div className="bg-gray-100 p-4 rounded-md mb-4">
-                  <p>{report?.postId?.content}</p>
+               <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl mb-4">
+                  <p className="text-sm text-slate-800 leading-relaxed">{report?.postId?.content}</p>
                </div>
             )}
-            <div className="bg-red-100 p-4 rounded-md">
-               <h3 className="text-lg font-bold mb-2">Reason for Report</h3>
-               <p>{report?.reason}</p>
+            <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl">
+               <h3 className="text-xs font-bold text-rose-800 uppercase tracking-wide mb-1">Reason for Report</h3>
+               <p className="text-sm text-rose-900 font-medium">{report?.reason}</p>
             </div>
          </div>
       </Modal>

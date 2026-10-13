@@ -24,14 +24,12 @@ const Notifications: FC = () => {
       return () => {
          socket.off("getNotifiation", getNotifiationEvent);
       };
-   }, [socket]);
+   }, [socket, userId]);
+
    return (
-      <div>
-         {/* <Menu />
-         <Header /> */}
+      <div className="sm:ml-64 min-h-screen px-3 sm:px-6 py-6 max-w-4xl mx-auto" style={{ background: "#F1F5F9" }}>
          <Popup notification={notified} data={notificationData} />
-         <Notification message="This is a success notification" type="success" />
-         {/* <RightSideBar /> */}
+         <Notification />
          <VideoCall />
       </div>
    );

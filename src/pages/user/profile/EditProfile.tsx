@@ -26,16 +26,16 @@ const EditProfile: FC = () => {
       return () => {
          socket.off("getNotifiation", getNotifiationEvent);
       };
-   }, [socket]);
+   }, [socket, userId]);
+
    return (
-      <>
+      <div className="sm:ml-64 min-h-screen px-3 sm:px-6 py-6 max-w-5xl mx-auto" style={{ background: "#F1F5F9" }}>
          <Popup notification={notified} data={notificationData} />
          <EditCoverPhoto />
          <EditUserProfile />
          <EditUserPhotosModal />
-
          <VideoCall />
-      </>
+      </div>
    );
 };
 

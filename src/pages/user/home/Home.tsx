@@ -60,41 +60,29 @@ const Home: FC = () => {
    return (
       <>
          {userData?.role === "admin" ? (
-            <div className="bg-gray-100 ">
-               <div className="mt-8"></div>
-
-               <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
-
+            <div className="sm:ml-64 md:mr-72 ml-0 mr-0 min-h-screen overflow-y-auto" style={{ background: '#F1F5F9' }}>
+               <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 pt-4 pb-16 space-y-4">
+                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+               </div>
                <CreatePostModal />
-
                <EditPostModal />
-
                <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
-
                <Comments />
-
                <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
             </div>
          ) : (
-            <div className="bg-gray-100 overflow-scroll">
-               <Story setView={setStoryViewing} />
-
-               <Poll />
-
+            <div className="sm:ml-64 md:mr-72 ml-0 mr-0 min-h-screen overflow-y-auto" style={{ background: '#F1F5F9' }}>
+               <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 pt-4 pb-16 space-y-4">
+                  <Story setView={setStoryViewing} />
+                  <Poll />
+                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+               </div>
                <Popup notification={notified} data={notificationData} />
-
-               <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
-
                <CreatePostModal />
-
                <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
-
                <Comments />
-
                <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
-
                <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
-
                <VideoCall />
             </div>
          )}

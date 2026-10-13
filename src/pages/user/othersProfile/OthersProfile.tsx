@@ -1,4 +1,4 @@
-import { Link, Outlet, useSearchParams } from "react-router-dom";
+import { Link, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import Comments from "../../../components/comments/Comments";
 import OthersCoverPhoto from "../../../components/OthersCoverPhoto/OthersCoverPhoto";
 import UnfollowModal from "../../../components/modal/UnfollowModal";
@@ -8,22 +8,17 @@ import { RootState } from "../../../store/store";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import VideoCall from "../../../components/videoCall/VideoCall";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThLarge, faChartBar } from "@fortawesome/free-solid-svg-icons";
 
 const socket = socketService.socket;
 
 function OthersProfile() {
    const [searchQuery] = useSearchParams();
-   const [classs, setClasss] = useState({
-      posts: "",
-      following: "",
-      polls: "",
-      followers: "",
-      likes: "",
-      reports: "",
-   });
    const [notified, setNotified] = useState<boolean>(false);
    const [notificationData, setNotificationData] = useState<any>(null);
    const userId: any = useSelector((state: RootState) => state?.user?.user?.userId);
+   const location = useLocation();
 
    useEffect(() => {
       const getNotifiationEvent = (data: any) => {
@@ -36,65 +31,56 @@ function OthersProfile() {
       return () => {
          socket.off("getNotifiation", getNotifiationEvent);
       };
-   }, [socket]);
+   }, [socket, userId]);
 
    const target = searchQuery.get("userId");
    const email = searchQuery.get("email");
 
-   useEffect(() => {
-      setClasss((prev) => {
-         return {
-            ...prev,
-            followers: "",
-            posts: "font-bold underline underline-offset-2",
-            polls: "",
-            following: "",
-            likes: "",
-            reports: "",
-         };
-      });
-   }, [email]);
+   const currentTab = location.pathname.includes("/polls") ? "polls" : "posts";
 
-   const handleClick = (position: string) => {
-      setClasss((prev) => {
-         return {
-            ...prev,
-            followers: "",
-            posts: "",
-            polls: "",
-            following: "",
-            likes: "",
-            reports: "",
-            [position]: "font-bold underline underline-offset-2",
-         };
-      });
-   };
    return (
-      <>
+      <div className="sm:ml-64 min-h-screen px-3 sm:px-6 py-6 max-w-5xl mx-auto" style={{ background: "#F1F5F9" }}>
          <Popup notification={notified} data={notificationData} />
+
+         {/* Others Profile Cover & Header */}
          <OthersCoverPhoto />
-         <div className="flex flex-wrap justify-center mt-20  py-4 sm:py-8">
+
+         {/* Segmented Navigation Tabs */}
+         <div className="bg-white rounded-2xl border border-slate-200/80 p-1.5 shadow-sm mb-6 flex items-center gap-1 max-w-md mx-auto">
             <Link
-               onClick={() => handleClick("posts")}
                to={`/others-profile?userId=${target}&email=${email}`}
-               className={`px-2 py-1 ${classs.posts}   rounded-md text-black text-xl u focus:outline-none `}
+               className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex-1 text-center ${
+                  currentTab === "posts"
+                     ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-xs"
+                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+               }`}
             >
-               Posts
+               <FontAwesomeIcon icon={faThLarge} className="text-xs" />
+               <span>Posts</span>
             </Link>
+
             <Link
-               onClick={() => handleClick("polls")}
                to={`/others-profile/polls?userId=${target}&email=${email}`}
-               className={`px-2 py-1 ${classs.polls} rounded-md text-black text-xl u focus:outline-none `}
+               className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex-1 text-center ${
+                  currentTab === "polls"
+                     ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-xs"
+                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+               }`}
             >
-               Polls
+               <FontAwesomeIcon icon={faChartBar} className="text-xs" />
+               <span>Polls</span>
             </Link>
          </div>
-         <Outlet />
+
+         {/* Content */}
+         <div className="pb-12">
+            <Outlet />
+         </div>
+
          <Comments />
          <UnfollowModal />
-
          <VideoCall />
-      </>
+      </div>
    );
 }
 

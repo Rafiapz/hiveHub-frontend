@@ -69,46 +69,69 @@ const PostLikesModal: FC<any> = ({ likesModal, closeLikesModal, postId, likes })
       //   >
       <Modal
          appElement={document.getElementById("root") as HTMLElement}
-         overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-         className=" bg-white rounded-lg shadow-xl w-1/3 h-2/3 max-h-screen"
+         overlayClassName="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+         className="bg-white rounded-3xl shadow-2xl border border-slate-100 w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden outline-none animate-fade-in"
          isOpen={likesModal}
          onRequestClose={closeLikesModal}
-         contentLabel="Report Post Modal"
+         contentLabel="Post Likes Modal"
          onAfterOpen={afterOpenModal}
          onAfterClose={afterCloseModal}
       >
-         <div className="p-6 flex flex-col h-full">
-            <div className="mb-4">
-               <div className="flex items-center justify-between ">
-                  {/* <h2 className="text-xl font-semibold ml-40 text-gray-800">New Message</h2> */}
-                  <h2></h2>
-                  <button className="text-gray-600 hover:text-gray-800 focus:outline-none" onClick={closeLikesModal}>
-                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                     </svg>
-                  </button>
-               </div>
+         {/* Modal Header */}
+         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-2">
+               <span className="text-rose-500 text-base">❤️</span>
+               <h3 className="text-base font-bold text-slate-900">Likes</h3>
+               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200/80 text-slate-700">
+                  {likedUsers?.length || likes || 0}
+               </span>
             </div>
-            <div className="overflow-y-auto">
-               <div className="flex flex-col overflow-hidden">
-                  {likedUsers?.map((likes: any) => (
-                     <div
-                        key={likes?._id}
-                        className="user-card bg-white rounded-lg w-full shadow-md p-3 m-4 h-20 hover:shadow-lg transition-shadow duration-300"
-                     >
-                        <div className="flex items-center mb-4" onClick={() => handleClick(likes?.userId?._id, likes?.userId?.email)}>
-                           <div className="profile-photo mr-4 hover:cursor-pointer">
-                              <img src={likes?.userId?.profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover" />
-                           </div>
-                           <div className="user-name hover:cursor-pointer">
-                              <h1 className="text-lg font-semibold">{likes?.userId?.fullName}</h1>
-                              <h5>{likes?.userId?.email}</h5>
-                           </div>
-                        </div>
+            <button
+               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors"
+               onClick={closeLikesModal}
+            >
+               ✕
+            </button>
+         </div>
+
+         {/* Liked Users List */}
+         <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {likedUsers && likedUsers.length > 0 ? (
+               likedUsers?.map((likeItem: any) => (
+                  <div
+                     key={likeItem?._id}
+                     onClick={() => handleClick(likeItem?.userId?._id, likeItem?.userId?.email)}
+                     className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-100"
+                  >
+                     <div className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-slate-100 flex-shrink-0">
+                        <img
+                           src={likeItem?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                           alt="Profile"
+                           className="w-full h-full object-cover"
+                        />
                      </div>
-                  ))}
+                     <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm text-slate-900 truncate hover:text-orange-600 transition-colors">
+                           {likeItem?.userId?.fullName}
+                        </p>
+                        <p className="text-xs text-slate-400 truncate">{likeItem?.userId?.email}</p>
+                     </div>
+                     <button
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                        onClick={(e) => {
+                           e.stopPropagation();
+                           handleClick(likeItem?.userId?._id, likeItem?.userId?.email);
+                        }}
+                     >
+                        Profile
+                     </button>
+                  </div>
+               ))
+            ) : (
+               <div className="py-10 text-center text-slate-400 text-sm">
+                  <p>No likes yet.</p>
                </div>
-            </div>
+            )}
          </div>
       </Modal>
       //   </InfiniteScroll>

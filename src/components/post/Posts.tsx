@@ -182,20 +182,23 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
          });
    };
 
+   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
    const closeLikesModal = () => {
       setLikesModal(false);
    };
 
    return (
       <>
-         <div className="flex flex-col items-center overflow-hidden">
+         <div className="w-full">
             <InfiniteScroll
                dataLength={items?.length}
                next={() => fetchMore()}
                hasMore={hasMore}
+               className="w-full space-y-4"
                loader={
                   <div
-                     className=" g-white  w-full sm:w-[800px]  border border-gray-300  p-6 sm:p-8 rounded-lg shadow-md mx-auto mt-2 hover:shadow-lg transition-shadow duration-300"
+                     className="bg-white w-full border border-slate-200/70 p-6 rounded-2xl sm:rounded-3xl shadow-sm my-4"
                      key={46597}
                   >
                      <Loading />
@@ -206,163 +209,204 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                   return (
                      <div
                         key={item?._id + i}
-                        className="bg-white  w-full sm:w-[800px]  border border-gray-300  p-6 sm:p-8 rounded-lg shadow-md mx-auto mt-2 hover:shadow-lg transition-shadow duration-300 "
+                        className="relative bg-white w-full border border-slate-200/80 rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
                         onClick={() => setShowOptions({ index: i, status: false })}
                      >
-                        <div className=" flex justify-end">
-                           <div
-                              onClick={(e) => {
-                                 e.stopPropagation();
-                                 handleOptionsClick(i);
-                              }}
-                              className="flex gap-1 items-center  justify-center w-14 h-6 rounded-full hover:bg-gray-200 cursor-pointer"
-                           >
-                              <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                              <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                              <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                           </div>
-                        </div>
-
-                        <div className="flex items-center h-10 hover:cursor-pointer">
-                           <div className="w-10 h-10 rounded-full overflow-hidden mr-4">
-                              <img src={item?.userId?.profilePhoto} alt="User" className="w-full h-full object-cover" />
-                           </div>
-                           <div className="flex items-center">
-                              {item?.userId?.premium && (
-                                 <svg
-                                    className="fill-current mr-2 text-indigo-500"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 16 16"
-                                    width="16"
-                                    height="16"
-                                 >
-                                    <circle cx="8" cy="8" r="8" fill="" />
-                                    <path d="M5.17 8.5L2.14 5.5L3.5 4.17L8.83 9.5L13.17 5.5z" fill="white" />
-                                 </svg>
-                              )}
-                              <div className="flex flex-col">
-                                 <p className="font-bold text-gray-800">{item?.userId?.fullName}</p>
-                                 <p className="text-sm text-gray-500">{format(item?.createdAt)}</p>
-                              </div>
-                           </div>
-                           <div className="ml-5">
-                              {isFollowing(item?.userId?._id) ? (
-                                 <button
-                                    onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
-                                    className="px-3 py-1 rounded-md text-black font-bold border border-black bg-white hover:bg-gray-200 focus:outline-none transition-colors duration-300"
-                                 >
-                                    View
-                                 </button>
-                              ) : (
-                                 <>{userId !== item?.userId?._id && <ConnectButton id={item?.userId?._id} content="Follow" />}</>
-                              )}
-                           </div>
-                           {showOptions?.status && showOptions?.index === i && (
+                        {/* Post header */}
+                        <div className="flex items-center justify-between px-5 pt-4 pb-3">
+                           <div className="flex items-center gap-3">
                               <div
-                                 className={` left-[190px] mt-1 w-28 bg-white border border-gray-400 shadow-lg rounded-md
-                                        ${showOptions?.status && showOptions?.index === i ? "block" : "hidden"}
-                                        left-[600px] static ml-auto w-auto border-none shadow-none rounded-none
-                              `}
+                                 className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-100 flex-shrink-0 cursor-pointer transition-transform hover:scale-105"
+                                 onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
                               >
-                                 <ul className="py-1 flex md:items-center">
-                                    {userId === item?.userId?._id && (
-                                       <>
-                                          <li
-                                             onClick={() =>
-                                                dispatch(
-                                                   handleEditPostModal({
-                                                      status: true,
-                                                      content: item?.content,
-                                                      media: {
-                                                         type: item?.media?.type,
-                                                         url: item?.media?.path,
-                                                      },
-                                                      _id: item?._id,
-                                                   })
-                                                )
-                                             }
-                                             className="p-2 hover:bg-gray-100 cursor-pointer md:mr-2"
-                                          >
-                                             Edit
-                                          </li>
-                                          <li
-                                             onClick={() => handleDeletePostModal(item?._id)}
-                                             className="p-2 hover:bg-gray-100 cursor-pointer md:mr-2"
-                                          >
-                                             Delete
-                                          </li>
-                                       </>
-                                    )}
-                                    {userId !== item?.userId?._id && (
-                                       <li
-                                          className="p-2 hover:bg-gray-100 cursor-pointer"
-                                          onClick={() => {
-                                             dispatch(handleReportPostId({ postId: item?._id }));
-                                             openModal();
-                                          }}
-                                       >
-                                          Report
-                                       </li>
-                                    )}
-                                 </ul>
+                                 <img
+                                    src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                                    alt="User"
+                                    className="w-full h-full object-cover"
+                                 />
                               </div>
-                           )}
+                              <div>
+                                 <div className="flex items-center gap-1.5">
+                                    <p
+                                       className="font-bold text-slate-800 text-sm hover:text-orange-600 cursor-pointer transition-colors"
+                                       onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
+                                    >
+                                       {item?.userId?.fullName}
+                                    </p>
+                                    {item?.userId?.premium && (
+                                       <span
+                                          className="inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] text-white shadow-xs"
+                                          style={{ background: 'linear-gradient(135deg, #F97316, #EC4899)' }}
+                                          title="Premium Member"
+                                       >
+                                          ✓
+                                       </span>
+                                    )}
+                                 </div>
+                                 <p className="text-xs text-slate-400 font-medium">{format(item?.createdAt)}</p>
+                              </div>
+                           </div>
+
+                           <div className="flex items-center gap-2">
+                              {item?.userId?._id !== userId && (
+                                 isFollowing(item?.userId?._id) ? (
+                                    <button
+                                       onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
+                                       className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                                    >
+                                       View Profile
+                                    </button>
+                                 ) : (
+                                    <ConnectButton id={item?.userId?._id} content="Follow" />
+                                 )
+                              )}
+                              <button
+                                 onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOptionsClick(i);
+                                 }}
+                                 className="w-8 h-8 rounded-full flex items-center justify-center gap-[3px] text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer transition-colors"
+                                 aria-label="Post options"
+                              >
+                                 <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                                 <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                                 <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                              </button>
+                           </div>
                         </div>
 
-                        <p className="py-4 text-gray-700">{item?.content}</p>
-
-                        {item?.media?.type === "image" && (
-                           <div className="w-full h-full">
-                              <img src={`${item?.media?.path}`} alt="Posted" className="mb-4 h-full object-cover rounded-lg w-full" />
+                        {/* Dropdown menu */}
+                        {showOptions?.status && showOptions?.index === i && (
+                           <div className="absolute right-4 top-14 w-40 bg-white border border-slate-100 shadow-xl rounded-2xl z-30 overflow-hidden py-1 animate-fade-in">
+                              <ul className="text-sm font-medium">
+                                 {userId === item?.userId?._id && (
+                                    <>
+                                       <li
+                                          onClick={(e) => {
+                                             e.stopPropagation();
+                                             dispatch(
+                                                handleEditPostModal({
+                                                   status: true,
+                                                   content: item?.content,
+                                                   media: { type: item?.media?.type, url: item?.media?.path },
+                                                   _id: item?._id,
+                                                })
+                                             );
+                                          }}
+                                          className="px-4 py-2.5 hover:bg-slate-50 cursor-pointer text-slate-700 flex items-center gap-2.5 transition-colors"
+                                       >
+                                          <span>✏️</span> Edit Post
+                                       </li>
+                                       <li
+                                          onClick={(e) => { e.stopPropagation(); handleDeletePostModal(item?._id); }}
+                                          className="px-4 py-2.5 hover:bg-rose-50 cursor-pointer text-rose-600 flex items-center gap-2.5 transition-colors"
+                                       >
+                                          <span>🗑️</span> Delete
+                                       </li>
+                                    </>
+                                 )}
+                                 {userId !== item?.userId?._id && (
+                                    <li
+                                       className="px-4 py-2.5 hover:bg-amber-50 cursor-pointer text-amber-600 flex items-center gap-2.5 transition-colors"
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          dispatch(handleReportPostId({ postId: item?._id }));
+                                          openModal();
+                                       }}
+                                    >
+                                       <span>🚩</span> Report Post
+                                    </li>
+                                 )}
+                              </ul>
                            </div>
                         )}
-                        {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
 
-                        <div className="flex justify-between items-center mt-4">
-                           <div className="flex items-center">
-                              <div className="flex items-center mr-8 cursor-pointer">
-                                 <FontAwesomeIcon
-                                    key={item?.id}
-                                    onClick={() => {
-                                       handleLikePost(item?._id);
-                                    }}
-                                    icon={faHeart}
-                                    className={`${
-                                       setClass(item?._id) ? "text-red-600" : "text-gray-400"
-                                    } mr-2 text-xl hover:text-red-600 transition duration-300`}
-                                 />
-                                 <p
-                                    onClick={() => {
+                        {/* Post content */}
+                        {item?.content && (
+                           <div className="px-5 pb-3">
+                              <p className="text-slate-800 text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                                 {item?.content}
+                              </p>
+                           </div>
+                        )}
+
+                        {/* Media: Perfectly fit image with ambient backdrop and lightbox */}
+                        {item?.media?.type === "image" && item?.media?.path && (
+                           <div
+                              className="relative w-full bg-slate-950/[0.03] overflow-hidden flex items-center justify-center cursor-pointer select-none group border-y border-slate-100 max-h-[580px]"
+                              onClick={() => setPreviewImage(item?.media?.path)}
+                           >
+                              {/* Ambient blur for portrait/letterbox images */}
+                              <div
+                                 className="absolute inset-0 bg-center bg-cover filter blur-2xl opacity-20 scale-110 pointer-events-none"
+                                 style={{ backgroundImage: `url(${item?.media?.path})` }}
+                              />
+                              <img
+                                 src={`${item?.media?.path}`}
+                                 alt="Post content"
+                                 className="relative z-10 w-full h-auto max-h-[580px] object-contain transition-transform duration-300 group-hover:scale-[1.01]"
+                                 loading="lazy"
+                              />
+                              <div className="absolute bottom-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-slate-900/75 backdrop-blur-md text-white text-xs font-medium px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 pointer-events-none shadow-sm">
+                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                 </svg>
+                                 Expand
+                              </div>
+                           </div>
+                        )}
+
+                        {/* Video player */}
+                        {item?.media?.type === "video" && item?.media?.path && (
+                           <div className="w-full bg-slate-950 flex items-center justify-center border-y border-slate-100 max-h-[540px]">
+                              <video controls src={`${item?.media?.path}`} className="w-full max-h-[540px] object-contain" />
+                           </div>
+                        )}
+
+                        {/* Actions bar */}
+                        <div className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
+                           <div className="flex items-center gap-2">
+                              {/* Like */}
+                              <button
+                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-105 ${
+                                    setClass(item?._id)
+                                       ? "text-rose-600 bg-rose-50 border border-rose-100 shadow-xs"
+                                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                 }`}
+                                 onClick={() => handleLikePost(item?._id)}
+                              >
+                                 <FontAwesomeIcon icon={faHeart} className={`text-base ${setClass(item?._id) ? "animate-pulse" : ""}`} />
+                                 <span
+                                    onClick={(e) => {
+                                       e.stopPropagation();
                                        setCurLikesCount(item?.likes);
                                        setCurPostId(item?._id);
                                        setLikesModal(true);
                                     }}
+                                    className="cursor-pointer hover:underline"
                                  >
-                                    {item?.likes}
-                                 </p>
-                              </div>
-                              <div className="flex items-center mr-8 cursor-pointer">
-                                 <FontAwesomeIcon
-                                    icon={faComment}
-                                    className="mr-2 text-blue-500 text-xl hover:text-blue-600 transition duration-300"
-                                    onClick={() => {
-                                       handleShowComments(item?._id);
-                                    }}
-                                 />
-                                 <p>{item?.comments}</p>
-                              </div>
-                              <div className="flex items-center mr-8 cursor-pointer" onClick={() => handleSharePost(item)}>
-                                 <FontAwesomeIcon
-                                    icon={faShare}
-                                    className="mr-2 text-yellow-300 text-xl hover:text-green-600 transition duration-300"
-                                 />
-                                 <p>{item?.shares}</p>
-                              </div>
-                           </div>
+                                    {item?.likes || 0}
+                                 </span>
+                              </button>
 
-                           {/* <div className="cursor-pointer">
-                              <FontAwesomeIcon icon={faBookmark} className="text-gray-500 text-xl hover:text-gray-700 transition duration-300" />
-                           </div> */}
+                              {/* Comment */}
+                              <button
+                                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-sky-50 hover:text-sky-600 transition-all duration-200 hover:scale-105"
+                                 onClick={() => handleShowComments(item?._id)}
+                              >
+                                 <FontAwesomeIcon icon={faComment} className="text-base" />
+                                 <span>{item?.comments || 0}</span>
+                              </button>
+
+                              {/* Share */}
+                              <button
+                                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-all duration-200 hover:scale-105"
+                                 onClick={() => handleSharePost(item)}
+                              >
+                                 <FontAwesomeIcon icon={faShare} className="text-base" />
+                                 <span>{item?.shares || 0}</span>
+                              </button>
+                           </div>
                         </div>
                      </div>
                   );
@@ -370,6 +414,27 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
             </InfiniteScroll>
             <PostLikesModal closeLikesModal={closeLikesModal} likesModal={likesModal} postId={curPostId} likes={curLikesCount} />
          </div>
+
+         {/* Fullscreen Image Lightbox */}
+         {previewImage && (
+            <div
+               className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+               onClick={() => setPreviewImage(null)}
+            >
+               <button
+                  className="absolute top-5 right-5 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-all duration-200 text-lg cursor-pointer"
+                  onClick={() => setPreviewImage(null)}
+               >
+                  ✕
+               </button>
+               <img
+                  src={previewImage}
+                  alt="Full preview"
+                  className="max-w-[95vw] max-h-[92vh] object-contain rounded-xl shadow-2xl"
+                  onClick={(e) => e.stopPropagation()}
+               />
+            </div>
+         )}
 
          <EditPostModal items={items} setItems={setItems} />
          <ConfirmationModal curId={curPostId} handleDelete={handleDelete} />

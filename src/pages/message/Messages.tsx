@@ -25,14 +25,9 @@ const Messages: FC = () => {
       };
    }, [socket]);
    return (
-      <div>
-         {/* <Header />
-         <Menu /> */}
+      <div className="sm:ml-64 h-[calc(100vh-56px)] flex flex-col overflow-hidden bg-slate-100">
          <Popup notification={notified} data={notificationData} />
          <MessageBox />
-         {/* <div className="hidden lg:block">
-            <RightSideBar />
-         </div> */}
       </div>
    );
 };

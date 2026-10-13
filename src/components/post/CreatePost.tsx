@@ -148,65 +148,130 @@ function CreatePost() {
    };
 
    return (
-      <div className="bg-gray-200 w-full mt-2 p-4 shadow-lg mx-auto">
-         <div className="md:flex gap-3">
-            <label htmlFor="image-upload" className="cursor-pointer mb-4 md:mb-0 flex items-center">
-               <FontAwesomeIcon icon={faImage} className="text-blue-500 mr-2" />
-               Upload Photo
-            </label>
-            <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+      <div className="p-6">
+         {/* Modal Header */}
+         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <h3 className="text-lg font-bold text-slate-800">Create Post</h3>
+            <button
+               onClick={() => dispatch(handleCreatePostModal())}
+               className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+               ✕
+            </button>
          </div>
-         <div className="flex flex-wrap border border-gray-300 border-dashed p-4 text-center mb-4">
-            {image && (
-               <div style={{ width: "100%", height: "300px", position: "relative" }}>
-                  (
+
+         {/* Author preview */}
+         <div className="flex items-center gap-3 py-4">
+            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-100">
+               <img
+                  src={userData?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+               />
+            </div>
+            <div>
+               <p className="font-bold text-slate-800 text-sm">{userData?.fullName || "You"}</p>
+               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">
+                  🌐 Public
+               </span>
+            </div>
+         </div>
+
+         {/* Content input */}
+         <textarea
+            value={content}
+            onChange={handleContentChange}
+            placeholder="What do you want to talk about?"
+            className="w-full p-3 rounded-2xl border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-slate-800 placeholder-slate-400 text-sm leading-relaxed transition-all resize-none"
+            rows={4}
+         />
+
+         {/* Media preview / cropper */}
+         {image && (
+            <div className="mt-4 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 relative">
+               <div style={{ width: "100%", height: "280px", position: "relative" }}>
                   <Cropper
                      image={image}
                      crop={crop}
                      zoom={zoom}
-                     aspect={4 / 4}
+                     aspect={4 / 3}
                      onCropChange={setCrop}
                      onCropComplete={onCropComplete}
                      onZoomChange={onZoomChange}
-                     style={{ containerStyle: { width: "100%", height: "100%" } }} // Make Cropper take the size of its parent
+                     style={{ containerStyle: { width: "100%", height: "100%" } }}
                   />
-                  )
                </div>
-            )}
-            {thumbnail && (
-               <div className="mr-4 mb-4 relative">
-                  <img
-                     src="https://raw.githubusercontent.com/github/explore/43b2caff479914f066fd7761bf9c83adf2666c4e/topics/video/video.png"
-                     alt="Uploaded"
-                     className="max-w-80 max-h-40 p-1"
-                  />
-                  <i
-                     onClick={() => setThumbnail("")}
-                     className="fa-regular fa-circle-xmark fa-2x absolute top-0 right-0 text-red-500 cursor-pointer"
-                  ></i>
+               <div className="flex items-center justify-between px-4 py-2 bg-slate-900/90 text-white text-xs">
+                  <span>Zoom / Adjust crop</span>
+                  <button
+                     onClick={() => {
+                        setImage(null);
+                        setCroppedImage(null);
+                     }}
+                     className="text-rose-400 hover:text-rose-300 font-medium"
+                  >
+                     Remove Image
+                  </button>
                </div>
-            )}
-            <p className="text-red-700">{error}</p>
+            </div>
+         )}
+
+         {thumbnail && (
+            <div className="mt-4 relative rounded-xl overflow-hidden border border-slate-200 w-fit">
+               <img
+                  src="https://raw.githubusercontent.com/github/explore/43b2caff479914f066fd7761bf9c83adf2666c4e/topics/video/video.png"
+                  alt="Uploaded"
+                  className="max-w-72 max-h-40 p-1"
+               />
+               <button
+                  onClick={() => setThumbnail("")}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-xs hover:bg-rose-600 transition-colors"
+               >
+                  ✕
+               </button>
+            </div>
+         )}
+
+         {error && <p className="text-rose-600 text-xs mt-2">{error}</p>}
+
+         {/* Upload trigger bar */}
+         <div className="mt-4 p-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-600">Add media to your post</span>
+            <label
+               htmlFor="image-upload"
+               className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-xs"
+            >
+               <FontAwesomeIcon icon={faImage} className="text-orange-500" />
+               <span>Photo</span>
+            </label>
+            <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
          </div>
-         <textarea
-            value={content}
-            onChange={handleContentChange}
-            placeholder="Write something..."
-            className="w-full p-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500 mb-4"
-            rows={4}
-         ></textarea>
-         <div className="flex justify-end md:items-center md:flex-row flex-col">
-            <button onClick={() => dispatch(handleCreatePostModal())} className="bg-white text-black font-bold py-2 px-4 rounded mr-2 mb-2 md:mb-0">
+
+         {/* Footer actions */}
+         <div className="flex items-center justify-end gap-2.5 mt-5 pt-4 border-t border-slate-100">
+            <button
+               onClick={() => dispatch(handleCreatePostModal())}
+               className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+            >
                Cancel
             </button>
             {isLoading ? (
-               <button className=" rounded-md bg-orange-400 p-2 text-white hover:bg-orange-700 flex items-center justify-center">
-                  <ReactLoading type={"spin"} color="#36d7b7" height={20} width={23} className="mr-2" />
-                  Loading
+               <button
+                  disabled
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white flex items-center gap-2 opacity-80"
+                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+               >
+                  <ReactLoading type={"spin"} color="#ffffff" height={16} width={16} />
+                  <span>Posting...</span>
                </button>
             ) : (
-               <button onClick={handleSubmit} className="bg-orange-400 text-white font-bold py-2 px-4 rounded">
-                  Submit
+               <button
+                  onClick={handleSubmit}
+                  disabled={!content.trim() && !image}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all shadow-xs hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: 'linear-gradient(135deg, #F97316, #EA580C)' }}
+               >
+                  Publish Post
                </button>
             )}
          </div>

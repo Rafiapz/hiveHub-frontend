@@ -7,6 +7,15 @@ import PremiumSuccessModal from "../../../components/modal/PremiumSuccessModal";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
 import VideoCall from "../../../components/videoCall/VideoCall";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+   faCrown,
+   faCheck,
+   faShieldAlt,
+   faBolt,
+   faStar,
+   faLock,
+} from "@fortawesome/free-solid-svg-icons";
 
 const socket = socketService.socket;
 
@@ -29,7 +38,7 @@ const Premium: FC = () => {
       return () => {
          socket.off("getNotifiation", getNotifiationEvent);
       };
-   }, [socket]);
+   }, [socket, userId]);
 
    const closeModal = () => {
       setModalIsOpen(false);
@@ -45,162 +54,217 @@ const Premium: FC = () => {
          formData.append("amount", amount);
          const response = await premiumOrder(formData);
 
-         var options = {
+         const options = {
             key: "rzp_test_n7T0wcONYZwk3H",
             amount: "69900",
             currency: "INR",
-            name: "hiveHub",
-            description: "Test Transaction",
-            image: "https://example.com/your_logo",
+            name: "HiveHub",
+            description: "HiveHub Premium Subscription",
+            image: "/logo.png",
             order_id: response?.data?.order_id,
-            handler: async (response: any) => {
-               console.log(response, "response");
-
+            handler: async (resp: any) => {
                const form = new FormData();
-
-               form.append("razorpay_payment_id", response?.razorpay_payment_id);
-               form.append("razorpay_order_id", response?.razorpay_order_id);
-               form.append("razorpay_signature", response?.razorpay_signature);
+               form.append("razorpay_payment_id", resp?.razorpay_payment_id);
+               form.append("razorpay_order_id", resp?.razorpay_order_id);
+               form.append("razorpay_signature", resp?.razorpay_signature);
 
                validateOrder(form)
                   .then(() => {
-                     const form = new FormData();
-                     form.append("paymentId", response?.razorpay_payment_id);
-                     form.append("orderId", response?.razorpay_order_id);
-                     form.append("userId", userId);
-                     form.append("amount", amount);
+                     const paymentForm = new FormData();
+                     paymentForm.append("paymentId", resp?.razorpay_payment_id);
+                     paymentForm.append("orderId", resp?.razorpay_order_id);
+                     paymentForm.append("userId", userId);
+                     paymentForm.append("amount", amount);
 
-                     createPayment(form).then((res) => {
+                     createPayment(paymentForm).then((res) => {
                         if (res?.data?.status === "ok") {
-                           toast.success("Payment Success");
-
+                           toast.success("Payment Successful! Welcome to Premium");
                            setModalIsOpen(true);
                         }
                      });
                   })
                   .catch((err) => {
-                     toast.error(err?.message);
+                     toast.error(err?.message || "Payment validation failed");
                   });
             },
             prefill: {
-               name: "Gaurav Kumar",
-               email: "gaurav.kumar@example.com",
-               contact: "9000090000",
+               name: userData?.fullName || "HiveHub Member",
+               email: userData?.email || "user@hivehub.com",
+               contact: "9999999999",
             },
             notes: {
-               address: "Razorpay Corporate Office",
+               address: "HiveHub HQ",
             },
             theme: {
-               color: "#3399cc",
+               color: "#F97316",
             },
          };
-         var rzp1 = new window.Razorpay(options);
+         const rzp1 = new (window as any).Razorpay(options);
          setIsLoading(false);
          rzp1.open();
       } catch (error: any) {
          setIsLoading(false);
-         console.log(error);
-
-         toast.error(error?.response?.data?.message);
+         toast.error(error?.response?.data?.message || "Failed to initiate payment");
       }
    };
 
+   const perks = [
+      {
+         icon: faCrown,
+         title: "Verified Gold Badge",
+         desc: "Stand out with an exclusive badge on your profile and every post",
+      },
+      {
+         icon: faBolt,
+         title: "Priority Visibility",
+         desc: "Amplify your posts & polls to reach more hive members",
+      },
+      {
+         icon: faShieldAlt,
+         title: "Dedicated Support",
+         desc: "Priority 24/7 assistance from our support team",
+      },
+      {
+         icon: faStar,
+         title: "Exclusive Creator Perks",
+         desc: "Early access to upcoming features and community tools",
+      },
+   ];
+
    return (
-      <>
+      <div className="sm:ml-64 min-h-screen px-4 sm:px-6 py-10 flex flex-col items-center justify-center" style={{ background: "#F1F5F9" }}>
          <Popup notification={notified} data={notificationData} />
+
          {userData?.premium ? (
-            <div className="mb-8 mx-auto max-w-4xl p-6  mt-20 bg-gradient-to-r from-orange-300 to-purple-500 rounded-lg shadow-lg text-white">
-               <h2 className="text-3xl font-extrabold mb-4">Welcome, {userData?.fullName}!</h2>
-               <p className="text-indigo-100 mb-6">As a premium user, you enjoy a range of exclusive benefits:</p>
-               <div className="bg-white rounded-lg shadow-lg p-6 text-gray-800">
-                  <h3 className="text-xl font-semibold mb-4 border-b-2 border-indigo-500 pb-2">Premium Benefits</h3>
-                  <ul className="list-disc pl-6 space-y-2">
-                     <li className="hover:text-indigo-600 transition-colors duration-300">Premium Badge on your profile</li>
-                     {/* <li className="hover:text-indigo-600 transition-colors duration-300">
-                       Access to exclusive content and features
-                   </li> */}
-                     {/* <li className="hover:text-indigo-600 transition-colors duration-300">
-                       Ad-free experience
-                   </li> */}
-                     <li className="hover:text-indigo-600 transition-colors duration-300">Priority support</li>
-                     <li className="hover:text-indigo-600 transition-colors duration-300">Increased visibility</li>
-                  </ul>
+            /* ACTIVE VIP SUBSCRIBER VIEW */
+            <div className="max-w-2xl w-full bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950/70 border border-amber-500/30 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden text-center animate-in fade-in zoom-in-95 duration-200">
+               {/* Ambient Glow */}
+               <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+               <div className="absolute bottom-0 left-0 w-60 h-60 bg-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+
+               <div className="relative z-10">
+                  <div className="w-20 h-20 rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-500/10">
+                     <FontAwesomeIcon icon={faCrown} className="text-3xl" />
+                  </div>
+
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-amber-400/20 text-amber-300 border border-amber-400/30 mb-3">
+                     VIP Member
+                  </span>
+
+                  <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
+                     Welcome, {userData?.fullName}!
+                  </h2>
+                  <p className="text-sm text-slate-300 max-w-md mx-auto mb-8">
+                     Your HiveHub Premium subscription is active. You have full access to all verified creator benefits.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                     {perks.map((p, idx) => (
+                        <div
+                           key={idx}
+                           className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm flex items-start gap-3"
+                        >
+                           <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <FontAwesomeIcon icon={p.icon} className="text-xs" />
+                           </div>
+                           <div>
+                              <h4 className="text-sm font-bold text-white">{p.title}</h4>
+                              <p className="text-xs text-slate-400 mt-0.5">{p.desc}</p>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
                </div>
             </div>
          ) : (
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
-               <div className="bg-white rounded-lg shadow-lg p-8 max-w-xl">
-                  <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">Upgrade to Premium</h2>
-                  <p className="text-gray-600 mb-8 text-center">Get access to exclusive features and content by upgrading to our premium plan.</p>
+            /* UPGRADE SHOWCASE VIEW */
+            <div className="max-w-xl w-full flex flex-col items-center">
+               {/* Header intro */}
+               <div className="text-center mb-8">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700 mb-3">
+                     <FontAwesomeIcon icon={faCrown} className="text-orange-500" />
+                     HIVEHUB PREMIUM
+                  </span>
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                     Elevate Your Presence
+                  </h1>
+                  <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
+                     Unlock verified status, increased reach, and exclusive creator features.
+                  </p>
+               </div>
 
-                  <div className="mb-8">
-                     <h3 className="text-lg font-semibold mb-4">Premium Benefits</h3>
-                     <ul className="list-disc pl-4">
-                        <li className="mb-2">Premium Badge on your profile</li>
-                        {/* <li className="mb-2">Access to exclusive content and features</li> */}
-                        {/* <li className="mb-2">Ad-free experience</li> */}
-                        <li className="mb-2">Priority support</li>
-                        <li className="mb-2">Increased visibility</li>
-                     </ul>
+               {/* Pricing card */}
+               <div className="w-full bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden">
+                  {/* Card top banner */}
+                  <div className="p-6 sm:p-8 bg-gradient-to-r from-orange-500 to-amber-500 text-white relative overflow-hidden">
+                     <div className="relative z-10 flex flex-col items-center text-center">
+                        <div className="flex items-baseline gap-1 mb-1">
+                           <span className="text-4xl sm:text-5xl font-black tracking-tight">₹699</span>
+                           <span className="text-sm font-semibold opacity-90">/ month</span>
+                        </div>
+                        <p className="text-xs text-orange-100 font-medium">
+                           Full access • Instant badge activation
+                        </p>
+                     </div>
                   </div>
 
-                  <div className="mb-6">
-                     <p className="text-gray-600 mb-2 text-center">Price: ₹699/month</p>
-                     {/* <p className="text-gray-600 mb-6 text-center">Free trial available for 7 days</p> */}
-                  </div>
+                  {/* Benefit list */}
+                  <div className="p-6 sm:p-8 space-y-4">
+                     <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                        Included with Premium:
+                     </h3>
 
-                  <div className="flex justify-center mb-6">
-                     <button
-                        className="bg-indigo-500 text-white px-6 py-3 rounded-md hover:bg-indigo-600 transition-colors duration-300 flex items-center"
-                        onClick={handleOrder}
-                     >
-                        {isLoading ? (
-                           <>
-                              <svg
-                                 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                 xmlns="http://www.w3.org/2000/svg"
-                                 fill="none"
-                                 viewBox="0 0 24 24"
-                              >
-                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                 <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                 ></path>
-                              </svg>
-                              Processing...
-                           </>
-                        ) : (
-                           <>
-                              <span className="mr-2">Upgrade Now</span>
-                              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                 <path
-                                    fillRule="evenodd"
-                                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                    clipRule="evenodd"
-                                 />
-                              </svg>
-                           </>
-                        )}
-                     </button>
-                  </div>
+                     <div className="space-y-3.5">
+                        {perks.map((p, idx) => (
+                           <div key={idx} className="flex items-start gap-3">
+                              <div className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                 <FontAwesomeIcon icon={faCheck} className="text-[10px]" />
+                              </div>
+                              <div>
+                                 <h4 className="text-sm font-bold text-slate-800">{p.title}</h4>
+                                 <p className="text-xs text-slate-500 mt-0.5">{p.desc}</p>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
 
-                  {/* <p className="text-gray-600 text-center text-sm">
-                     By clicking "Upgrade Now", you agree to our{" "}
-                     <a href="#" className="text-indigo-600">
-                        Terms and Conditions
-                     </a>
-                     .
-                  </p> */}
+                     {/* Action button */}
+                     <div className="pt-6">
+                        <button
+                           onClick={handleOrder}
+                           disabled={isLoading}
+                           className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group"
+                        >
+                           {isLoading ? (
+                              <span>Processing payment...</span>
+                           ) : (
+                              <>
+                                 <FontAwesomeIcon icon={faCrown} />
+                                 <span>Upgrade Now — ₹699</span>
+                              </>
+                           )}
+                        </button>
+                     </div>
+
+                     {/* Trust notes */}
+                     <div className="flex items-center justify-center gap-4 pt-3 text-[11px] text-slate-400">
+                        <span className="flex items-center gap-1">
+                           <FontAwesomeIcon icon={faLock} className="text-[9px]" />
+                           Secure Razorpay
+                        </span>
+                        <span>•</span>
+                        <span>Cancel Anytime</span>
+                        <span>•</span>
+                        <span>Instant Access</span>
+                     </div>
+                  </div>
                </div>
             </div>
          )}
 
          <PremiumSuccessModal modalIsOpen={modalIsOpen} closeModal={closeModal} />
-
          <VideoCall />
-      </>
+      </div>
    );
 };
 

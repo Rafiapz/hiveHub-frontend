@@ -105,6 +105,18 @@ const UserPosts: FC = () => {
    //    openSharePostMod();
    // };
 
+   if (!posts || posts.length === 0) {
+      return (
+         <div className="bg-white rounded-2xl border border-slate-200/80 p-12 text-center shadow-sm max-w-lg mx-auto my-6">
+            <div className="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mx-auto mb-4">
+               <FontAwesomeIcon icon={faComment} className="text-2xl" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800">No posts yet</h3>
+            <p className="text-sm text-slate-500 mt-1">Share your updates, photos, or thoughts with the community!</p>
+         </div>
+      );
+   }
+
    return (
       <div className="flex flex-col items-center overflow-hidden">
          <div className="flex   overflow-hidden">
@@ -113,7 +125,7 @@ const UserPosts: FC = () => {
                   return (
                      <div
                         key={item?._id + i}
-                        className="bg-white border   w-full sm:w-[800px] p-6 sm:p-8 rounded-lg shadow-md mx-auto mt-2 hover:shadow-lg transition-shadow duration-300 "
+                        className="bg-white border border-slate-200/80 w-full max-w-2xl p-6 rounded-2xl shadow-sm mx-auto mt-4 hover:shadow-md transition-all duration-300 relative overflow-hidden "
                         onClick={() => setShowOptions({ index: i, status: false })}
                      >
                         <div className=" flex justify-end">
@@ -195,8 +207,25 @@ const UserPosts: FC = () => {
 
                         <p className="py-4 text-gray-700">{item?.content}</p>
 
-                        {item?.media?.type === "image" && <img src={`${item?.media?.path}`} alt="Posted" className="mb-4 rounded-lg w-full" />}
-                        {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
+                        {item?.media?.type === "image" && item?.media?.path && (
+         <div className="relative w-full bg-slate-950/[0.03] overflow-hidden flex items-center justify-center border-y border-slate-100 max-h-[560px] my-3">
+            <div
+               className="absolute inset-0 bg-center bg-cover filter blur-2xl opacity-20 scale-110 pointer-events-none"
+               style={{ backgroundImage: `url(${item?.media?.path})` }}
+            />
+            <img
+               src={`${item?.media?.path}`}
+               alt="Posted"
+               className="relative z-10 w-full max-h-[560px] object-contain"
+               loading="lazy"
+            />
+         </div>
+      )}
+                        {item?.media?.type === "video" && item?.media?.path && (
+         <div className="w-full bg-slate-950 flex items-center justify-center border-y border-slate-100 max-h-[540px] my-3">
+            <video controls src={`${item?.media?.path}`} className="w-full max-h-[540px] object-contain" />
+         </div>
+      )}
 
                         <div className="flex justify-between items-center mt-4">
                            <div className="flex items-center">

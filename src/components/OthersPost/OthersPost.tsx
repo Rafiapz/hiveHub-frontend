@@ -60,26 +60,52 @@ const OthersPost: FC<any> = ({}) => {
             return (
                <div
                   key={item?._id}
-                  className="bg-gray-50 w-full sm:w-2/3 md:w-1/2 p-4 shadow-lg mx-auto mt-2 relative"
+                  className="bg-white w-full max-w-2xl border border-slate-200/80 rounded-2xl shadow-sm mx-auto mt-4 p-5 hover:shadow-md transition-all duration-300 relative overflow-hidden"
                   onClick={() => setShowOptions({ index: i, status: false })}
                >
-                  <div className="flex items-center justify-between mb-4">
-                     <div className="flex items-center hover:cursor-pointer">
-                        <img src={item?.userId?.profilePhoto} alt="User" className="rounded-full h-10 w-10 object-cover mr-2" />
-                        <p className="font-bold">{item?.userId.fullName}</p>
+                  <div className="flex items-center justify-between mb-3">
+                     <div className="flex items-center gap-3 hover:cursor-pointer">
+                        <img
+                           src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
+                           alt="User"
+                           className="rounded-full h-10 w-10 object-cover ring-2 ring-slate-100"
+                        />
+                        <div>
+                           <p className="font-bold text-slate-900 text-sm">{item?.userId.fullName}</p>
+                           <p className="text-xs text-slate-400 font-medium">
+                              {new Date(item?.createdAt).toLocaleString("en-GB", {
+                                 day: "2-digit",
+                                 month: "2-digit",
+                                 year: "numeric",
+                              })}
+                           </p>
+                        </div>
                      </div>
-                     <p className="text-sm mr-4 sm:mr-20 font-bold text-gray-500">
-                        {new Date(item?.createdAt).toLocaleString("en-GB", {
-                           day: "2-digit",
-                           month: "2-digit",
-                           year: "numeric",
-                        })}
-                     </p>
                   </div>
-                  <p className="p-4">{item?.content}</p>
 
-                  {item?.media?.type === "image" && <img src={`${item?.media?.path}`} alt="Posted" className="mb-4 rounded-lg w-full" />}
-                  {item?.media?.type === "video" && <video controls src={`${item?.media?.path}`}></video>}
+                  {item?.content && (
+                     <p className="text-slate-800 text-sm leading-relaxed mb-3 whitespace-pre-wrap">{item?.content}</p>
+                  )}
+
+                  {item?.media?.type === "image" && item?.media?.path && (
+                     <div className="relative w-full bg-slate-950/[0.03] overflow-hidden flex items-center justify-center border-y border-slate-100 max-h-[560px] my-3">
+                        <div
+                           className="absolute inset-0 bg-center bg-cover filter blur-2xl opacity-20 scale-110 pointer-events-none"
+                           style={{ backgroundImage: `url(${item?.media?.path})` }}
+                        />
+                        <img
+                           src={`${item?.media?.path}`}
+                           alt="Post attachment"
+                           className="relative z-10 w-full max-h-[560px] object-contain"
+                           loading="lazy"
+                        />
+                     </div>
+                  )}
+                  {item?.media?.type === "video" && item?.media?.path && (
+                     <div className="w-full bg-slate-950 flex items-center justify-center border-y border-slate-100 max-h-[540px] my-3">
+                        <video controls src={`${item?.media?.path}`} className="w-full max-h-[540px] object-contain" />
+                     </div>
+                  )}
 
                   <div className="flex justify-between items-center">
                      <div className="flex items-center gap-5">
