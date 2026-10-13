@@ -1,0 +1,93 @@
+import { FC, useEffect, useState } from "react";
+import Popup from "../../../components/notification/Popup";
+import socketService from "../../../service/socketService";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store/store";
+import VideoCall from "../../../components/videoCall/VideoCall";
+import Posts from "../../../components/post/Posts";
+import CreatePostModal from "../../../components/modal/CreatePostModal";
+import EditPostModal from "../../../components/modal/EditPostModal";
+import ReportPost from "../../../components/reportPost/ReportPost";
+import Comments from "../../../components/comments/Comments";
+import ViewStory from "../../../components/story/ViewStory";
+import Story from "../../../components/story/Story";
+import Poll from "../../../components/Polls/Poll";
+import SharePost from "../../../components/share/SharePost";
+
+const socket = socketService.socket;
+
+const Home: FC = () => {
+   const [modalIsOpen, setIsOpen] = useState(false);
+   const [storyViewing, setStoryViewing] = useState<boolean>(false);
+   const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
+   const [sharePostModalIsOpen, setSharePostModalIsOpen] = useState(false);
+   const userId: any = useSelector((state: RootState) => state.user.user.userId);
+   const [notified, setNotified] = useState<boolean>(false);
+   const [notificationData, setNotificationData] = useState<any>(null);
+
+   useEffect(() => {
+      const getNotifiationEvent = (data: any) => {
+         if (data?.senderId !== userId) {
+            setNotificationData(data);
+            setNotified(true);
+         }
+      };
+      socket.on("getNotifiation", getNotifiationEvent);
+      return () => {
+         socket.off("getNotifiation", getNotifiationEvent);
+      };
+   }, [socket]);
+
+   const openModal = () => {
+      setIsOpen(true);
+   };
+   const closeModal = () => {
+      setIsOpen(false);
+   };
+
+   const handleStoryView = () => {
+      setStoryViewing(false);
+   };
+
+   const openSharePostModal = () => {
+      setSharePostModalIsOpen(true);
+   };
+
+   const closeSharePostModal = () => {
+      setSharePostModalIsOpen(false);
+   };
+
+   return (
+      <>
+         {userData?.role === "admin" ? (
+            <div className="sm:ml-64 md:mr-72 ml-0 mr-0 min-h-screen overflow-y-auto" style={{ background: '#F1F5F9' }}>
+               <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 pt-4 pb-16 space-y-4">
+                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+               </div>
+               <CreatePostModal />
+               <EditPostModal />
+               <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
+               <Comments />
+               <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
+            </div>
+         ) : (
+            <div className="sm:ml-64 md:mr-72 ml-0 mr-0 min-h-screen overflow-y-auto" style={{ background: '#F1F5F9' }}>
+               <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 pt-4 pb-16 space-y-4">
+                  <Story setView={setStoryViewing} />
+                  <Poll />
+                  <Posts openModal={openModal} openSharePostModal={openSharePostModal} />
+               </div>
+               <Popup notification={notified} data={notificationData} />
+               <CreatePostModal />
+               <ReportPost modalIsOpen={modalIsOpen} openModal={openModal} closeModal={closeModal} />
+               <Comments />
+               <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
+               <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
+               <VideoCall />
+            </div>
+         )}
+      </>
+   );
+};
+
+export default Home;

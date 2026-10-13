@@ -1,0 +1,13 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@layer components {
+   .stories {
+      overflow-x: scroll;
+      overflow-y: hidden;
+   }
+   .stories::-webkit-scrollbar {
+      display: none;
+   }
+}
