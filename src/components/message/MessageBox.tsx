@@ -374,10 +374,14 @@ const MessageBox: FC = () => {
   };
 
   useEffect(() => {
-    socket.on("typing", () => {
+    const typingEvent = () => {
       setTyping(true);
       setTimeout(() => setTyping(false), 2000);
-    });
+    };
+    socket.on("typing", typingEvent);
+    return () => {
+      socket.off("typing", typingEvent);
+    };
   }, [socket]);
 
   const handleUnblockUser = async () => {
@@ -714,8 +718,10 @@ const MessageBox: FC = () => {
                     className="flex-1 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
                     placeholder="Write a message..."
                     value={message}
-                    onFocus={handleTyping}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(e) => {
+                      setMessage(e.target.value);
+                      handleTyping();
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();

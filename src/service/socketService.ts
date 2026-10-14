@@ -4,8 +4,11 @@ class SocketService {
   socket;
 
   constructor() {
-    const backendUrl = import.meta.env.BACKEND_URL!;
-    this.socket = io(backendUrl);
+    const backendUrl = import.meta.env.VITE_BACKEND_URL as string;
+    this.socket = io(backendUrl, {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+    });
   }
 }
 
