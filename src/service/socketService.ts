@@ -1,10 +1,12 @@
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
 class SocketService {
-    socket;
-    constructor() {
-        this.socket = io("http://localhost:7700");
-    }
+  socket;
+
+  constructor() {
+    const backendUrl = import.meta.env.BACKEND_URL!;
+    this.socket = io(backendUrl);
+  }
 }
 
 const socketService = new SocketService();
