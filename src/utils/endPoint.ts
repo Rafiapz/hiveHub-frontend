@@ -1,4 +1,4 @@
-export const BASE_URL = import.meta.env.BACKEND_URL;
+export const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 export const SIGNUP_URL = "/auth/signup";
 
