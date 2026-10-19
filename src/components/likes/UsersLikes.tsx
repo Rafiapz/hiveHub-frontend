@@ -167,8 +167,31 @@ const UsersLikes: FC = () => {
                         </div> */}
 
                         <div className="flex items-center h-10 hover:cursor-pointer">
-                           <div className="w-10 h-10 rounded-full overflow-hidden mr-4">
-                              <img src={item?.userId?.profilePhoto} alt="User" className="w-full h-full object-cover" />
+                           <div className="w-10 h-10 rounded-full overflow-hidden mr-4 ring-2 ring-slate-100 flex-shrink-0 bg-slate-100 flex items-center justify-center relative shadow-xs">
+                              {item?.userId?.profilePhoto ? (
+                                 <img
+                                    src={item?.userId?.profilePhoto}
+                                    alt="User"
+                                    className="w-full h-full object-cover"
+                                    onError={(e: any) => {
+                                       e.currentTarget.style.display = "none";
+                                       const fallback = e.currentTarget.parentElement?.querySelector(".avatar-fallback");
+                                       if (fallback) {
+                                          fallback.classList.remove("hidden");
+                                          fallback.classList.add("flex");
+                                       }
+                                    }}
+                                 />
+                              ) : null}
+                              <div
+                                 className={`avatar-fallback ${item?.userId?.profilePhoto ? "hidden" : "flex"} w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 items-center justify-center text-slate-400 select-none`}
+                                 title={item?.userId?.fullName || "No profile photo"}
+                              >
+                                 <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                                    <circle cx="12" cy="8" r="4" />
+                                    <path d="M5 20c0-3.866 3.134-7 7-7s7 3.134 7 7H5z" />
+                                 </svg>
+                              </div>
                            </div>
                            <div className="flex items-center">
                               {item?.userId?.premium && (

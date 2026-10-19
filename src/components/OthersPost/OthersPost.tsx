@@ -65,11 +65,32 @@ const OthersPost: FC<any> = ({}) => {
                >
                   <div className="flex items-center justify-between mb-3">
                      <div className="flex items-center gap-3 hover:cursor-pointer">
-                        <img
-                           src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
-                           alt="User"
-                           className="rounded-full h-10 w-10 object-cover ring-2 ring-slate-100"
-                        />
+                        <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-100 flex-shrink-0 bg-slate-100 flex items-center justify-center relative shadow-xs">
+                           {item?.userId?.profilePhoto ? (
+                              <img
+                                 src={item?.userId?.profilePhoto}
+                                 alt={item?.userId?.fullName || "User"}
+                                 className="w-full h-full object-cover"
+                                 onError={(e: any) => {
+                                    e.currentTarget.style.display = "none";
+                                    const fallback = e.currentTarget.parentElement?.querySelector(".avatar-fallback");
+                                    if (fallback) {
+                                       fallback.classList.remove("hidden");
+                                       fallback.classList.add("flex");
+                                    }
+                                 }}
+                              />
+                           ) : null}
+                           <div
+                              className={`avatar-fallback ${item?.userId?.profilePhoto ? "hidden" : "flex"} w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 items-center justify-center text-slate-400 select-none`}
+                              title={item?.userId?.fullName || "No profile photo"}
+                           >
+                              <svg className="w-5 h-5 text-slate-400" viewBox="0 0 24 24" fill="currentColor">
+                                 <circle cx="12" cy="8" r="4" />
+                                 <path d="M5 20c0-3.866 3.134-7 7-7s7 3.134 7 7H5z" />
+                              </svg>
+                           </div>
+                        </div>
                         <div>
                            <p className="font-bold text-slate-900 text-sm">{item?.userId.fullName}</p>
                            <p className="text-xs text-slate-400 font-medium">

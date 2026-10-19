@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { resendOtpAction } from "../../store/actions/auth/userActions";
 import { AppDispatch } from "../../store/store";
 import toast from "react-hot-toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRotateRight, faClock } from "@fortawesome/free-solid-svg-icons";
 
 interface ChildProps {
    timer: number;
@@ -35,32 +37,39 @@ const CountdownTimer: React.FC<ChildProps> = ({ timer, setTimer, email }) => {
    const formatTime = (seconds: number) => {
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = seconds % 60;
-      const formattedTime = `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
-      return formattedTime;
+      return `${minutes.toString().padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
    };
 
    const handleResendOtp = () => {
       dispatch(resendOtpAction(email)).then((data: any) => {
-         if (data.payload.status === "ok") {
+         if (data?.payload?.status === "ok") {
             setTimer(120);
-            toast(data.payload.message, { style: { backgroundColor: "green", color: "white" } });
+            toast.success(data?.payload?.message || "OTP resent successfully!");
          } else {
-            toast(data.payload.message, { style: { backgroundColor: "red", color: "white" } });
+            toast.error(data?.payload?.message || "Failed to resend OTP");
          }
       });
    };
+
    return (
-      <>
+      <div className="flex items-center justify-center w-full">
          {timer > 0 ? (
-            <div className="bg-gray-200 rounded-lg w-14 ml-24">
-               <div className="my-2 text-start text-xl font-semibold text-gray-900">{formatTime(timer)}</div>
+            <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-600 px-3.5 py-1.5 rounded-full text-xs font-medium">
+               <FontAwesomeIcon icon={faClock} className="text-orange-500 text-xs" />
+               <span>Code expires in</span>
+               <span className="font-mono font-bold text-brand-orange">{formatTime(timer)}</span>
             </div>
          ) : (
-            <span onClick={handleResendOtp} className="text-blue-500 cursor-pointer mr-32">
-               Didn't get OTP? Resend
-            </span>
+            <button
+               type="button"
+               onClick={handleResendOtp}
+               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brand-orange hover:text-brand-orange-dark transition-colors group cursor-pointer"
+            >
+               <FontAwesomeIcon icon={faRotateRight} className="text-xs group-hover:rotate-180 transition-transform duration-300" />
+               <span>Didn't receive code? <span className="underline">Resend OTP</span></span>
+            </button>
          )}
-      </>
+      </div>
    );
 };
 

@@ -32,94 +32,110 @@ import MainLayout from "./pages/layout/MainLayout";
 const socket = socketService.socket;
 
 function App() {
-   const auth = useSelector((state: RootState) => state?.user?.user?.auth?.isAuth);
-   const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
-   const dispatch = useDispatch<AppDispatch>();
-   const userId = useSelector((state: RootState) => state?.user?.user?.userId);
+  const auth = useSelector(
+    (state: RootState) => state?.user?.user?.auth?.isAuth,
+  );
+  const userData: any = useSelector(
+    (state: RootState) => state?.user?.user?.data,
+  );
+  const dispatch = useDispatch<AppDispatch>();
+  const userId = useSelector((state: RootState) => state?.user?.user?.userId);
 
-   useEffect(() => {
-      dispatch(fetchuser());
-   }, []);
+  useEffect(() => {
+    dispatch(fetchuser());
+  }, []);
 
-   useEffect(() => {
-      if (userId) {
-         socket.emit("addUser", userId);
-      }
-   }, [userId]);
+  useEffect(() => {
+    if (userId) {
+      socket.emit("addUser", userId);
+    }
+  }, [userId]);
 
-   return (
-      <>
-         <Toaster position="top-center" containerClassName="text-red-500" />
-         {!auth ? (
+  return (
+    <>
+      <Toaster position="top-center" containerClassName="text-red-500" />
+      {!auth ? (
+        <>
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<Login />} />
+            <Route path="/verification" element={<Verification />} />
+            <Route path="/profile" element={<Login />} />
+            <Route path="/edit-profile" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/others-profile" element={<Login />} />
+            <Route path="/dashboard" element={<Login />} />
+            <Route path="/messages" element={<Login />} />
+            <Route path="/admin" element={<Login />} />
+            <Route path="/admin/reports" element={<Login />} />
+          </Routes>
+        </>
+      ) : (
+        <>
+          {userData && userData?.isBlocked === true ? (
+            <BlockedUser />
+          ) : (
             <>
-               <Routes>
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/" element={<Login />} />
-                  <Route path="/verification" element={<Verification />} />
-                  <Route path="/profile" element={<Login />} />
-                  <Route path="/edit-profile" element={<Login />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/reset-password" element={<ResetPassword />} />
-                  <Route path="/others-profile" element={<Login />} />
-                  <Route path="/dashboard" element={<Login />} />
-                  <Route path="/messages" element={<Login />} />
-                  <Route path="/admin" element={<Login />} />
-                  <Route path="/admin/reports" element={<Login />} />
-               </Routes>
+              {userData?.role === "admin" && (
+                <Routes>
+                  <Route path="/" element={<Navigate to={"/admin"} />} />
+                  <Route path="/admin/" element={<MainLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="reports" element={<Reports />} />
+                    <Route path="notifications" element={<Notifications />} />
+                    <Route path="messages" element={<Messages />} />
+                    <Route path="polls" element={<PollPage />} />
+                    <Route path="posts" element={<Home />} />
+                    <Route path="profile" element={<Profile />}>
+                      <Route index element={<UserPosts />} />
+                      <Route path={`profile/polls`} element={<UsersPoll />} />
+                      <Route path="profile/following" element={<Following />} />
+                      <Route path="profile/followers" element={<Followers />} />
+                      <Route path="profile/likes" element={<UsersLikes />} />
+                    </Route>
+                  </Route>
+                </Routes>
+              )}
+              <Routes>
+                <Route path="/" element={<MainLayout />}>
+                  <Route
+                    path="/"
+                    element={
+                      userData?.role === "admin" ? (
+                        <Navigate to={"/admin"} />
+                      ) : (
+                        <Home />
+                      )
+                    }
+                  />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/direct" />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/premium" element={<Premium />} />
+                  <Route path="/polls" element={<PollPage />} />
+                  <Route path="/profile" element={<Profile />}>
+                    <Route index element={<UserPosts />} />
+                    <Route path={`/profile/polls`} element={<UsersPoll />} />
+                    <Route path="/profile/following" element={<Following />} />
+                    <Route path="/profile/followers" element={<Followers />} />
+                    <Route path="/profile/likes" element={<UsersLikes />} />
+                  </Route>
+                  <Route path="/edit-profile" element={<EditProfile />} />
+                  <Route path="/others-profile" element={<OthersProfile />}>
+                    <Route index element={<OthersProfilePosts />} />
+                    <Route
+                      path="/others-profile/polls"
+                      element={<UsersPoll />}
+                    />
+                  </Route>
+                </Route>
+              </Routes>
             </>
-         ) : (
-            <>
-               {userData && userData?.isBlocked === true ? (
-                  <BlockedUser />
-               ) : (
-                  <>
-                     {userData?.role === "admin" && (
-                        <Routes>
-                           <Route path="/" element={<Navigate to={"/admin"} />} />
-                           <Route path="/admin/" element={<MainLayout />}>
-                              <Route index element={<Dashboard />} />
-                              <Route path="reports" element={<Reports />} />
-                              <Route path="notifications" element={<Notifications />} />
-                              <Route path="messages" element={<Messages />} />
-                              <Route path="polls" element={<PollPage />} />
-                              <Route path="posts" element={<Home />} />
-                              <Route path="profile" element={<Profile />}>
-                                 <Route index element={<UserPosts />} />
-                                 <Route path={`profile/polls`} element={<UsersPoll />} />
-                                 <Route path="profile/following" element={<Following />} />
-                                 <Route path="profile/followers" element={<Followers />} />
-                                 <Route path="profile/likes" element={<UsersLikes />} />
-                              </Route>
-                           </Route>
-                        </Routes>
-                     )}
-                     <Routes>
-                        <Route path="/" element={<MainLayout />}>
-                           <Route path="/" element={userData?.role === "admin" ? <Navigate to={"/admin"} /> : <Home />} />
-                           <Route path="/messages" element={<Messages />} />
-                           <Route path="/direct" />
-                           <Route path="/notifications" element={<Notifications />} />
-                           <Route path="/premium" element={<Premium />} />
-                           <Route path="/polls" element={<PollPage />} />
-                           <Route path="/profile" element={<Profile />}>
-                              <Route index element={<UserPosts />} />
-                              <Route path={`/profile/polls`} element={<UsersPoll />} />
-                              <Route path="/profile/following" element={<Following />} />
-                              <Route path="/profile/followers" element={<Followers />} />
-                              <Route path="/profile/likes" element={<UsersLikes />} />
-                           </Route>
-                           <Route path="/edit-profile" element={<EditProfile />} />
-                           <Route path="/others-profile" element={<OthersProfile />}>
-                              <Route index element={<OthersProfilePosts />} />
-                              <Route path="/others-profile/polls" element={<UsersPoll />} />
-                           </Route>
-                        </Route>
-                     </Routes>
-                  </>
-               )}
-            </>
-         )}
-      </>
-   );
+          )}
+        </>
+      )}
+    </>
+  );
 }
 export default App;

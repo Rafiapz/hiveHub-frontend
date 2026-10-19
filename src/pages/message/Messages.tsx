@@ -25,7 +25,7 @@ const Messages: FC = () => {
       };
    }, [socket]);
    return (
-      <div className="sm:ml-64 h-[calc(100vh-56px)] flex flex-col overflow-hidden bg-slate-100">
+      <div className="md:ml-64 h-[calc(100dvh-56px)] flex flex-col overflow-hidden bg-slate-100">
          <Popup notification={notified} data={notificationData} />
          <MessageBox />
       </div>

@@ -1,15 +1,13 @@
-import { FC } from "react";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faComment, faShare } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import { deletePostAction, fetchAllCommentsOfPost, fetchAllposts, fetchUsersPost, likePostAction } from "../../store/actions/post/postActions";
-import Loading from "../loading/Loading";
 import toast from "react-hot-toast";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import { confirmationModalReducer } from "../../store/slices/user/userSlice";
-import { handleCommentModal, handleEditPostModal, handleReportPostId, setSharePost } from "../../store/slices/posts/postSlice";
+import { handleCommentModal, handleCreatePostModal, handleEditPostModal, handleReportPostId, setSharePost } from "../../store/slices/posts/postSlice";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "timeago.js";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -24,26 +22,56 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    const dispatch = useDispatch<AppDispatch>();
    const userId = useSelector((state: RootState) => state.user.user.userId);
    const [curPostId, setCurPostId] = useState<number | null>();
-   const [hasMore] = useState<boolean>(true);
+   const [hasMore, setHasMore] = useState<boolean>(true);
+   const [loading, setLoading] = useState<boolean>(true);
    const likes: any = useSelector((state: RootState) => state?.posts?.posts?.likes);
    const posts: any = useSelector((state: RootState) => state.posts.posts.data);
+   const createPostModalOpen = useSelector((state: RootState) => state.posts.createPostModal.isOpen);
    const [page, setPage] = useState<number>(1);
-   const [items, setItems] = useState<any>(posts);
+   const [items, setItems] = useState<any[]>(posts || []);
    const [likesModal, setLikesModal] = useState<boolean>(false);
    const [curLikesCount, setCurLikesCount] = useState<number | null>(null);
    const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
    const networks: any = useSelector((state: RootState) => state?.networks?.network?.data);
+   const prevModalOpen = useRef(createPostModalOpen);
+
+   const loadInitialPosts = () => {
+      setLoading(true);
+      setPage(1);
+      dispatch(fetchAllposts({ page: 1 }))
+         .then((response: any) => {
+            setLoading(false);
+            if (response?.payload?.status === "error" || response?.payload?.status === "failed") {
+               toast.error(response?.payload?.message || "Failed to load posts");
+            }
+            const fetchedPosts = response?.payload?.data?.posts;
+            if (Array.isArray(fetchedPosts) && fetchedPosts.length > 0) {
+               setItems(fetchedPosts);
+               setHasMore(true);
+            } else {
+               setItems([]);
+               setHasMore(false);
+            }
+         })
+         .catch((err) => {
+            console.error("Failed to load posts:", err);
+            setLoading(false);
+            setItems([]);
+            setHasMore(false);
+         });
+   };
 
    useEffect(() => {
-      dispatch(fetchAllposts({ page })).then((response) => {
-         if (response?.payload?.status !== "ok") {
-            toast(response?.payload?.message, {
-               style: { backgroundColor: "#ff6347", color: "#eeeeee" },
-            });
-         }
-         setItems(response.payload?.data?.posts);
-      });
+      loadInitialPosts();
    }, []);
+
+   // When Create Post modal closes, re-fetch to display the newly created post
+   useEffect(() => {
+      if (prevModalOpen.current && !createPostModalOpen) {
+         loadInitialPosts();
+      }
+      prevModalOpen.current = createPostModalOpen;
+   }, [createPostModalOpen]);
 
    const [showOptions, setShowOptions] = useState<{
       status: boolean;
@@ -97,9 +125,10 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                dispatch(fetchUsersPost(userId));
             } else {
                setItems((prev: any) => {
-                  const newItems = prev.filter((item: any) => item._id != id);
-                  console.log("length", newItems.length);
-
+                  const newItems = (prev || []).filter((item: any) => item._id != id);
+                  if (newItems.length === 0) {
+                     setHasMore(false);
+                  }
                   return newItems;
                });
             }
@@ -118,15 +147,14 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
             dispatch(fetchUsersPost(userId));
          } else {
             const post = response?.payload?.post;
-            dispatch(fetchAllposts({ page })).then(() => {
+            if (post) {
                setItems((prev: any) => {
-                  const newItems = prev.map((item: any) => {
+                  return (prev || []).map((item: any) => {
                      if (item._id === id) {
                         return { ...item, likes: post.likes };
                      }
                      return item;
                   });
-                  return newItems;
                });
 
                if (response?.payload?.message === "Succesfully liked post") {
@@ -138,13 +166,14 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                      actionBy: userData?.fullName,
                   });
                }
-            });
+            }
+            dispatch(fetchAllposts({ page }));
          }
       });
    };
 
    const setClass = (itemId: any) => {
-      return likes.some((ob: any) => ob.postId === itemId && ob.userId === userId);
+      return likes?.some((ob: any) => ob.postId === itemId && ob.userId === userId);
    };
 
    const handleShowComments = (id: number) => {
@@ -155,30 +184,38 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
       });
    };
 
-   // const viewOthersProfile = (id: number, email: string) => {
-   //    navigate(`/others-profile?userId=${id}&email=${email}`);
-   // };
-
    const handleSharePost = (post: any) => {
       dispatch(setSharePost({ data: post }));
       openSharePostModal();
    };
 
    const fetchMore = () => {
-      dispatch(fetchAllposts({ page: page + 1 }))
+      const nextPage = page + 1;
+      dispatch(fetchAllposts({ page: nextPage }))
          .then((response: any) => {
-            setPage(page + 1);
-            if (response?.payload?.data?.posts?.length >= 1) {
-               setItems((prev: any) => [...prev, ...response.payload?.data?.posts]);
+            const newPosts = response?.payload?.data?.posts;
+            if (Array.isArray(newPosts) && newPosts.length >= 1) {
+               setPage(nextPage);
+               setItems((prev: any) => [...(prev || []), ...newPosts]);
+               setHasMore(true);
             } else {
                setPage(1);
-               dispatch(fetchAllposts({ page: 1 })).then((res) => {
-                  setItems((prev: any) => [...prev, ...res.payload?.data?.posts]);
+               dispatch(fetchAllposts({ page: 1 })).then((res: any) => {
+                  const loopPosts = res?.payload?.data?.posts;
+                  if (Array.isArray(loopPosts) && loopPosts.length >= 1) {
+                     setItems((prev: any) => [...(prev || []), ...loopPosts]);
+                     setHasMore(true);
+                  } else {
+                     setHasMore(false);
+                  }
+               }).catch(() => {
+                  setHasMore(false);
                });
             }
          })
-         .catch(() => {
-            toast.error("error");
+         .catch((err: any) => {
+            console.error("Error loading more posts:", err);
+            toast.error("Error loading more posts");
          });
    };
 
@@ -191,20 +228,117 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    return (
       <>
          <div className="w-full">
-            <InfiniteScroll
-               dataLength={items?.length}
-               next={() => fetchMore()}
-               hasMore={hasMore}
-               className="w-full space-y-4"
-               loader={
-                  <div
-                     className="bg-white w-full border border-slate-200/70 p-6 rounded-2xl sm:rounded-3xl shadow-sm my-4"
-                     key={46597}
-                  >
-                     <Loading />
+            {loading && (!items || items.length === 0) ? (
+               /* Skeleton Feed while loading */
+               <div className="w-full space-y-4">
+                  {[1, 2].map((n) => (
+                     <div
+                        key={n}
+                        className="bg-white w-full border border-slate-200/80 rounded-2xl sm:rounded-3xl p-5 shadow-sm space-y-4 animate-pulse"
+                     >
+                        <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-slate-200 flex-shrink-0" />
+                              <div className="space-y-1.5">
+                                 <div className="w-32 h-3.5 bg-slate-200 rounded-md" />
+                                 <div className="w-20 h-2.5 bg-slate-100 rounded-md" />
+                              </div>
+                           </div>
+                           <div className="w-16 h-7 bg-slate-100 rounded-lg" />
+                        </div>
+                        <div className="space-y-2 pt-1">
+                           <div className="w-full h-3 bg-slate-200 rounded-md" />
+                           <div className="w-4/5 h-3 bg-slate-150 rounded-md" />
+                        </div>
+                        <div className="w-full h-44 bg-slate-100 rounded-xl" />
+                     </div>
+                  ))}
+               </div>
+            ) : !items || items.length === 0 ? (
+               /* Empty State: No posts in feed */
+               <div className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-sm relative overflow-hidden transition-all duration-300">
+                  {/* Decorative ambient background glows */}
+                  <div className="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br from-orange-400/10 to-pink-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-gradient-to-tr from-amber-400/10 to-orange-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="relative z-10 flex flex-col items-center">
+                     {/* Modern icon badge */}
+                     <div
+                        className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5 shadow-lg shadow-orange-500/20 transform transition-transform duration-300 hover:scale-105"
+                        style={{ background: "linear-gradient(135deg, #F97316 0%, #FB923C 50%, #EC4899 100%)" }}
+                     >
+                        <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.8}
+                              d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                           />
+                        </svg>
+                     </div>
+
+                     {/* Heading & description */}
+                     <h3 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
+                        No Posts in Your Feed Yet
+                     </h3>
+                     <p className="text-sm sm:text-base text-slate-500 max-w-md mx-auto mt-2 leading-relaxed">
+                        Your feed is quiet right now. Be the first to share an update, showcase a project, or spark a conversation with the community!
+                     </p>
+
+                     {/* Action buttons */}
+                     <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+                        <button
+                           onClick={() => dispatch(handleCreatePostModal())}
+                           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl sm:rounded-2xl text-white font-semibold text-sm shadow-md shadow-orange-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                           style={{ background: "linear-gradient(135deg, #F97316 0%, #EC4899 100%)" }}
+                        >
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                           </svg>
+                           <span>Create a Post</span>
+                        </button>
+
+                        <button
+                           onClick={loadInitialPosts}
+                           className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl sm:rounded-2xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                        >
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                           </svg>
+                           <span>Refresh Feed</span>
+                        </button>
+                     </div>
+
+                     {/* Feature tips pills */}
+                     <div className="flex flex-wrap justify-center items-center gap-2 mt-8 pt-6 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                        <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100">✨ Share photos & videos</span>
+                        <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100">👥 Connect with creators</span>
+                        <span className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100">💬 Like & comment</span>
+                     </div>
                   </div>
-               }
-            >
+               </div>
+            ) : (
+               <InfiniteScroll
+                  dataLength={items?.length}
+                  next={() => fetchMore()}
+                  hasMore={hasMore}
+                  className="w-full space-y-4"
+                  loader={
+                     <div className="flex items-center justify-center py-5">
+                        <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-slate-200/80 shadow-xs text-xs font-semibold text-slate-500">
+                           <div className="w-3.5 h-3.5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                           <span>Loading more posts...</span>
+                        </div>
+                     </div>
+                  }
+                  endMessage={
+                     items.length > 3 ? (
+                        <div className="text-center py-6">
+                           <p className="text-xs font-medium text-slate-400">You've reached the end of the feed ✨</p>
+                        </div>
+                     ) : null
+                  }
+               >
                {items?.map((item: any, i: number) => {
                   return (
                      <div
@@ -213,20 +347,43 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                         onClick={() => setShowOptions({ index: i, status: false })}
                      >
                         {/* Post header */}
-                        <div className="flex items-center justify-between px-5 pt-4 pb-3">
+                        <div className="flex items-center justify-between px-5 py-3.5">
                            <div className="flex items-center gap-3">
                               <div
-                                 className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-100 flex-shrink-0 cursor-pointer transition-transform hover:scale-105"
+                                 className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-100 flex-shrink-0 cursor-pointer transition-transform hover:scale-105 bg-slate-100 flex items-center justify-center relative shadow-xs"
                                  onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
                               >
-                                 <img
-                                    src={item?.userId?.profilePhoto || "https://avatar.iran.liara.run/public"}
-                                    alt="User"
-                                    className="w-full h-full object-cover"
-                                 />
+                                 {item?.userId?.profilePhoto ? (
+                                    <img
+                                       src={item?.userId?.profilePhoto}
+                                       alt={item?.userId?.fullName || "User"}
+                                       className="w-full h-full object-cover"
+                                       onError={(e: any) => {
+                                          e.currentTarget.style.display = "none";
+                                          const fallback = e.currentTarget.parentElement?.querySelector(".avatar-fallback");
+                                          if (fallback) {
+                                             fallback.classList.remove("hidden");
+                                             fallback.classList.add("flex");
+                                          }
+                                       }}
+                                    />
+                                 ) : null}
+                                 <div
+                                    className={`avatar-fallback ${item?.userId?.profilePhoto ? "hidden" : "flex"} w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 items-center justify-center text-slate-400 select-none`}
+                                    title={item?.userId?.fullName || "No profile photo"}
+                                 >
+                                    <svg
+                                       className="w-5 h-5 text-slate-400"
+                                       viewBox="0 0 24 24"
+                                       fill="currentColor"
+                                    >
+                                       <circle cx="12" cy="8" r="4" />
+                                       <path d="M5 20c0-3.866 3.134-7 7-7s7 3.134 7 7H5z" />
+                                    </svg>
+                                 </div>
                               </div>
                               <div>
-                                 <div className="flex items-center gap-1.5">
+                                 <div className="flex items-center gap-1.5 leading-tight">
                                     <p
                                        className="font-bold text-slate-800 text-sm hover:text-orange-600 cursor-pointer transition-colors"
                                        onClick={() => handleClick(item?.userId?._id, item?.userId?.email)}
@@ -412,6 +569,7 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
                   );
                })}
             </InfiniteScroll>
+            )}
             <PostLikesModal closeLikesModal={closeLikesModal} likesModal={likesModal} postId={curPostId} likes={curLikesCount} />
          </div>
 
