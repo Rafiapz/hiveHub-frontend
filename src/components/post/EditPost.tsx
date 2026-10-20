@@ -88,8 +88,6 @@ const EditPost: FC<any> = ({ setItems }) => {
                style: { backgroundColor: "#4caf50", color: "white" },
             });
             if (pathname === "/profile") {
-               console.log("called prfo");
-
                dispatch(fetchUsersPost(userId));
             } else if (pathname === "/profile/likes") {
                dispatch(fetchUsersLikedPosts());

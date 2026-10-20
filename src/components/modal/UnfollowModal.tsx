@@ -24,8 +24,6 @@ const UnfollowModal: FC = () => {
    };
 
    const handleUnfollow = () => {
-      console.log(curId);
-
       dispatch(unFollow(curId))
          .then((response) => {
             if (response?.payload?.status === "ok") {

@@ -24,8 +24,6 @@ const OthersPost: FC<any> = ({}) => {
    const target = searchQuery.get("userId");
    useEffect(() => {
       dispatch(fetchUsersPost({ target, id: userId })).then((response) => {
-         console.log(response?.payload);
-
          if (response?.payload?.data === "blockedByMe") {
             setBlocked({ status: true, byMe: true });
          } else if (response?.payload?.data === "blockedByHim") {

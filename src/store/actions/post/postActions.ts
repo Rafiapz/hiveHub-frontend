@@ -38,8 +38,6 @@ export const editPostAction = createAsyncThunk('/post/edit', async ({ formData, 
 
         if (!params) {
             const media = { url: originalUrl, type: type };
-            console.log(media);
-
             formData.append("media", JSON.stringify(media));
         }
 
@@ -165,7 +163,6 @@ export const editComment = createAsyncThunk('/comments/delete-comment', async ({
 
 
         const response = await apiClient.put(`${EDIT_COMMENT_URL}/${commentId}`, formData, jsonConfig)
-        console.log(response.data);
 
         return response.data
 

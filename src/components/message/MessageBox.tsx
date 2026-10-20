@@ -150,7 +150,20 @@ const MessageBox: FC = () => {
 
   useEffect(() => {
     handlefetchOnline();
-  }, []);
+
+    const handleGetUsers = (users: any) => {
+      if (Array.isArray(users)) {
+        setOnlineUsers(users);
+      } else if (users && typeof users === "object") {
+        setOnlineUsers(Object.keys(users));
+      }
+    };
+
+    socket.on("getUsers", handleGetUsers);
+    return () => {
+      socket.off("getUsers", handleGetUsers);
+    };
+  }, [userId]);
 
   const handlefetchOnline = async () => {
     try {

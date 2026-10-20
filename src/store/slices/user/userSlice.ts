@@ -78,12 +78,15 @@ const userSlice = createSlice({
                 state.user.data = action?.payload?.userData
                 state.user.userId = action?.payload?.userData?._id
             })
-            .addCase(logoutAction.fulfilled, (state, action) => {
-                if (action?.payload?.status === 'ok') {
-                    state.user.auth.isAuth = false
-                    state.user.data = null
-                    state.user.userId = null
-                }
+            .addCase(logoutAction.fulfilled, (state) => {
+                state.user.auth.isAuth = false
+                state.user.data = null
+                state.user.userId = null
+            })
+            .addCase(logoutAction.rejected, (state) => {
+                state.user.auth.isAuth = false
+                state.user.data = null
+                state.user.userId = null
             })
             .addCase(fetchAllUsers.fulfilled, (state, action) => {
                 if (action?.payload?.status === 'ok') {

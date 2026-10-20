@@ -6,6 +6,9 @@ import {
   blockOrUnblockUser,
   getOnlineUsers,
 } from "../../store/actions/admin/adminActions";
+import socketService from "../../service/socketService";
+
+const socket = socketService.socket;
 
 const UsersTable: FC = () => {
   const adminId = useSelector((state: RootState) => state.user.user.userId);
@@ -23,6 +26,19 @@ const UsersTable: FC = () => {
       });
       setAllUsers(response?.payload?.data);
     });
+
+    const handleGetUsers = (users: any) => {
+      if (Array.isArray(users)) {
+        setOnline(users);
+      } else if (users && typeof users === "object") {
+        setOnline(Object.keys(users));
+      }
+    };
+
+    socket.on("getUsers", handleGetUsers);
+    return () => {
+      socket.off("getUsers", handleGetUsers);
+    };
   }, []);
 
   const handleBlockUser = (userId: any, status: boolean) => {

@@ -9,8 +9,6 @@ const ViewReport: FC<any> = ({ modalIsOpen, closeModal, report }) => {
       document.body.style.overflow = "hidden";
    }
 
-   console.log(report);
-
    return (
       <Modal
          appElement={document.getElementById("root") as HTMLElement}

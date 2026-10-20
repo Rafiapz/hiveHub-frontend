@@ -106,8 +106,6 @@ const Poll = () => {
   };
 
   const handleEditSubmit = async (values: any, poll: any) => {
-    console.log("values", values);
-
     try {
       const form = new FormData();
 

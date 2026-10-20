@@ -151,9 +151,6 @@ export const fetchOnlineUsers = async () => {
 }
 
 export const fetchUsersPolls = async (id: any) => {
-
-    console.log(`${FETCH_USERS_POLLS_URL}/${id}`);
-
     return await apiClient.get(`${FETCH_USERS_POLLS_URL}/${id}`)
 }
 

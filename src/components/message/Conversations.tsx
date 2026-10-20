@@ -4,6 +4,9 @@ import { RootState } from "../../store/store";
 import { format } from "timeago.js";
 import { fetchOnlineUsers } from "../../service/api";
 import toast from "react-hot-toast";
+import socketService from "../../service/socketService";
+
+const socket = socketService.socket;
 
 interface ConversationsProps {
   conversations: any[];
@@ -36,6 +39,19 @@ const Conversations: FC<ConversationsProps> = ({
     } else {
       setOnlineUsers(propOnlineUsers);
     }
+
+    const handleGetUsers = (users: any) => {
+      if (Array.isArray(users)) {
+        setOnlineUsers(users);
+      } else if (users && typeof users === "object") {
+        setOnlineUsers(Object.keys(users));
+      }
+    };
+
+    socket.on("getUsers", handleGetUsers);
+    return () => {
+      socket.off("getUsers", handleGetUsers);
+    };
   }, [propOnlineUsers]);
 
   const handlefetchOnline = async () => {

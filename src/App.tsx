@@ -47,8 +47,22 @@ function App() {
 
   useEffect(() => {
     if (userId) {
+      if (!socket.connected) {
+        socket.connect();
+      }
       socket.emit("addUser", userId);
     }
+
+    const handleConnect = () => {
+      if (userId) {
+        socket.emit("addUser", userId);
+      }
+    };
+
+    socket.on("connect", handleConnect);
+    return () => {
+      socket.off("connect", handleConnect);
+    };
   }, [userId]);
 
   return (

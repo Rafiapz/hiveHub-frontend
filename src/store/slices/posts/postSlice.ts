@@ -119,8 +119,6 @@ const postSlice = createSlice({
             state.posts.data = action?.payload?.data
         },
         updatePost: (state, action) => {
-            console.log(action.payload.data);
-
             state.posts.data = action?.payload?.data
         }
 

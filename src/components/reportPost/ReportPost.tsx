@@ -14,7 +14,6 @@ const ReportPost = ({ closeModal, modalIsOpen }: any) => {
    const dispatch = useDispatch<AppDispatch>();
 
    const handleChange = (e: any) => {
-      console.log(e?.target?.value);
       if (e?.target?.value !== "") {
          setError("");
       }

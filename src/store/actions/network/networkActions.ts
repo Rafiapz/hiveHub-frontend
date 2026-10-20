@@ -8,7 +8,6 @@ export const connectionRequestAction = createAsyncThunk('/network/connection-req
     try {
 
         const response = await apiClient.post(`${CONNECTION_REQUEST_URL}/${userId}?target=${targetId}`)
-        console.log(response.data);
 
         return response.data
 
@@ -51,7 +50,6 @@ export const fetchFollowers = createAsyncThunk('/networks/fetch-followers', asyn
     try {
 
         const response = await apiClient.get(FETCH_FOLLOWERS_URL)
-        console.log(response.data, 'foll');
 
         return response.data
 
@@ -66,7 +64,6 @@ export const unFollow = createAsyncThunk('/network/unfollow', async (id: number)
 
 
         const reponse = await apiClient.delete(`${UNFOLLOW_URL}/${id}`)
-        console.log(reponse.data, 'dtaaa');
 
         return reponse.data
 

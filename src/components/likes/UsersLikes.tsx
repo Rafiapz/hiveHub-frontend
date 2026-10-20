@@ -88,7 +88,6 @@ const UsersLikes: FC = () => {
             } else {
                setItems((prev: any) => {
                   const newItems = prev.filter((item: any) => item._id != id);
-                  console.log("length", newItems.length);
 
                   return newItems;
                });

@@ -55,8 +55,7 @@ function CreatePost() {
       }
    };
 
-   const onCropComplete = async (croppedArea: any, croppedAreaPixels: any) => {
-      console.log(croppedArea, croppedAreaPixels);
+   const onCropComplete = async (_croppedArea: any, croppedAreaPixels: any) => {
       const cropped = await getCroppedImg(image, croppedAreaPixels);
       setCroppedImage(cropped);
    };
@@ -85,7 +84,6 @@ function CreatePost() {
       //    if (e?.target?.files?.[0]) {
       //       const url = URL.createObjectURL(e?.target?.files[0]);
       //       setImageUrl(url);
-      //       console.log(url);
       //    }
       // }
    };

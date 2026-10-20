@@ -33,7 +33,6 @@ export const signupAction = createAsyncThunk("/signup", async (userCredentials: 
 export const otpVerification = createAsyncThunk("/otp-verification", async (data: IOtp, { }) => {
     try {
         const response = await apiClient.post(OTP_VERIFICATION_URL, data, jsonConfig);
-        console.log(response.data);
 
         return response.data;
     } catch (error: any) {
@@ -92,7 +91,6 @@ export const fetchuser = createAsyncThunk("/auth/fetch-user", async () => {
 export const loginWithGoogle = createAsyncThunk("/auth/google", async (accessToken: any, { rejectWithValue }) => {
     try {
         const response = await apiClient.post("/auth/google", { googleAccesToken: accessToken });
-        console.log(response.data);
 
         return response.data;
     } catch (error: any) {
@@ -103,7 +101,6 @@ export const loginWithGoogle = createAsyncThunk("/auth/google", async (accessTok
 export const editUserImages = createAsyncThunk("/auth/edit-user-images", async ({ formData, type }: any) => {
     try {
         const response = await apiClient.post(`${EDIT_USER_IMAGES_URL}/image?${[type]}=${type}`, formData, multiPartConfig);
-        console.log(response);
         return response.data;
     } catch (error: any) {
         throw new Error(error.message);
@@ -113,7 +110,6 @@ export const editUserImages = createAsyncThunk("/auth/edit-user-images", async (
 export const editUserProfile = createAsyncThunk("/auth/edit-user-profile", async (form: any) => {
     try {
         const response = await apiClient.post(EDIT_USER_PROFILE, form, jsonConfig);
-        console.log(response.data);
         return response.data;
     } catch (error: any) {
         throw new Error(error.message);
@@ -125,7 +121,6 @@ export const editUserProfile = createAsyncThunk("/auth/edit-user-profile", async
 export const editUserPassword = createAsyncThunk("/auth/edit-user-password", async (form: any) => {
     try {
         const response = await apiClient.post(EDIT_USER_PASSWORD, form, jsonConfig);
-        console.log(response.data);
         return response.data;
     } catch (error: any) {
         throw new Error(error);
@@ -136,10 +131,7 @@ export const editUserPassword = createAsyncThunk("/auth/edit-user-password", asy
 
 export const changePassword = createAsyncThunk("/auth/change-password", async (form: any) => {
     try {
-        console.log("pwd aclled");
-
         const response = await apiClient.post(CHANGE_PASSWORD_URL, form, jsonConfig);
-        console.log(response.data);
 
         return response.data;
     } catch (error: any) {
