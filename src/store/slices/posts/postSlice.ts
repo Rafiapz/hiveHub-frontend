@@ -8,7 +8,7 @@ const initialState = {
 
     posts: {
         loading: false,
-        data: [],
+        data: [] as any[],
         likes: null,
         error: null
     },
@@ -59,7 +59,7 @@ const initialState = {
         data: null
     },
     ownPost: {
-        data: [],
+        data: [] as any[],
         likes: null
     }
 }
@@ -120,6 +120,20 @@ const postSlice = createSlice({
         },
         updatePost: (state, action) => {
             state.posts.data = action?.payload?.data
+        },
+        updatePostShares: (state, action) => {
+            const { postId, shares } = action.payload || {};
+            if (Array.isArray(state.posts.data)) {
+                state.posts.data = state.posts.data.map((p: any) => {
+                    if (p._id === postId) {
+                        return {
+                            ...p,
+                            shares: shares !== undefined ? shares : (p.shares || 0) + 1,
+                        };
+                    }
+                    return p;
+                });
+            }
         }
 
 
@@ -212,7 +226,8 @@ export const {
     setCurrentStory,
     setSharePost,
     handleFetchMore,
-    updatePost
+    updatePost,
+    updatePostShares
 } = postSlice.actions;
 
 export default postSlice.reducer;    

@@ -315,22 +315,24 @@ const Comments: FC = () => {
 
                                  <p className="text-slate-800 text-sm ml-9 leading-relaxed break-words">{item?.comment}</p>
 
-                                 <div className="flex items-center gap-3 ml-9 mt-2 text-xs">
-                                    <div className="flex items-center gap-1">
+                                 <div className="flex items-center gap-4 ml-9 mt-2">
+                                    <div className="flex items-center gap-1.5">
                                        <HeartIcon commentId={item?._id} />
-                                       <span className="text-slate-500 font-semibold">{item?.likes || 0}</span>
+                                       <span className="text-xs font-semibold text-slate-500">{item?.likes || 0}</span>
                                     </div>
+
+                                    <span className="w-px h-3 bg-slate-200" />
 
                                     {seeReplies?.status === true && seeReplies?.index === i ? (
                                        <button
-                                          className="text-orange-600 font-semibold hover:underline"
+                                          className="text-xs text-orange-600 font-semibold hover:underline"
                                           onClick={() => handleCloseSeeReplies(i)}
                                        >
                                           Hide replies
                                        </button>
                                     ) : (
                                        <button
-                                          className="text-slate-500 font-semibold hover:text-slate-800"
+                                          className="text-xs text-slate-500 font-semibold hover:text-slate-800"
                                           onClick={() => handleSeeReplies(item?._id, i)}
                                        >
                                           Replies

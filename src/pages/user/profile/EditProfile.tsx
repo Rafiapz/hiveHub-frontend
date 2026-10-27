@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { RootState } from "../../../store/store";
-import VideoCall from "../../../components/videoCall/VideoCall";
 
 const socket = socketService.socket;
 
@@ -34,7 +33,6 @@ const EditProfile: FC = () => {
          <EditCoverPhoto />
          <EditUserProfile />
          <EditUserPhotosModal />
-         <VideoCall />
       </div>
    );
 };

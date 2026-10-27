@@ -9,7 +9,6 @@ import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import VideoCall from "../../../components/videoCall/VideoCall";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
    faThLarge,
@@ -94,7 +93,6 @@ function Profile() {
          <Comments />
          <Popup notification={notified} data={notificationData} />
          <UnfollowModal />
-         <VideoCall />
       </div>
    );
 }

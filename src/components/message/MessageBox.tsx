@@ -32,7 +32,7 @@ import toast from "react-hot-toast";
 import socketService from "../../service/socketService";
 import Conversations from "./Conversations";
 import { BASE_URL } from "../../utils/endPoint";
-import VideoCall from "../videoCall/VideoCall";
+import { startVideoCall } from "../../store/slices/messages/messagesSlice";
 
 const socket = socketService.socket;
 
@@ -60,12 +60,18 @@ const MessageBox: FC = () => {
   const [direct, setDirect] = useState(false);
   const [remoteUser, setRemoteUser] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const childRef = useRef<any>();
-
   const handleClickVideoCall = () => {
-    if (childRef.current) {
-      childRef.current.callPeer(remoteUser);
+    if (!remoteUser) {
+      toast.error("Please select a conversation first");
+      return;
     }
+    const targetMember = curChat?.members?.find((m: any) => m?._id === remoteUser);
+    dispatch(
+      startVideoCall({
+        receiverId: remoteUser,
+        receiverData: targetMember,
+      })
+    );
   };
 
   const handleVideoChange = (event: any) => {
@@ -207,6 +213,7 @@ const MessageBox: FC = () => {
       toast.error("Message cannot be empty");
       return;
     }
+    setEmojiOn(false);
     setLoading(true);
     let receiverId: any;
     const form = new FormData();
@@ -744,9 +751,9 @@ const MessageBox: FC = () => {
                     <button
                       onClick={handleSubmit}
                       disabled={!message.trim() && !image && !selectedFile}
-                      className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm hover:shadow flex items-center gap-1.5 transition-all flex-shrink-0"
+                      className="w-9 h-9 sm:w-auto sm:h-auto sm:px-4 sm:py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-sm hover:shadow flex items-center justify-center gap-1.5 transition-all flex-shrink-0"
                     >
-                      <span>Send</span>
+                      <span className="hidden sm:inline">Send</span>
                       <FontAwesomeIcon
                         icon={faPaperPlane}
                         className="text-[11px]"
@@ -793,9 +800,6 @@ const MessageBox: FC = () => {
         conversations={conversations}
         onlineUsers={onlineUsers}
       />
-
-      {/* Video Calling Peer Reference */}
-      <VideoCall ref={childRef} remoteUser={remoteUser} />
     </div>
   );
 };

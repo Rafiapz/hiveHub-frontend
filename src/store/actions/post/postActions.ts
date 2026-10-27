@@ -58,7 +58,14 @@ export const fetchAllposts = createAsyncThunk('/post/fetch-all-posts', async ({ 
 
     try {
 
-        const response = await apiClient.get(`${FETCH_ALL_POSTS_URL}?user=${id}&page=${page}&size=$${size}`)
+        const queryParams = new URLSearchParams();
+        if (id) queryParams.append("user", id);
+        if (page !== undefined && page !== null) queryParams.append("page", String(page));
+        if (size !== undefined && size !== null) queryParams.append("size", String(size));
+
+        const queryString = queryParams.toString();
+        const url = queryString ? `${FETCH_ALL_POSTS_URL}?${queryString}` : FETCH_ALL_POSTS_URL;
+        const response = await apiClient.get(url);
 
         return response.data
 

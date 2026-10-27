@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from "../../store/store";
 import { repostPost } from "../../service/api";
 import toast from "react-hot-toast";
 import { fetchAllposts } from "../../store/actions/post/postActions";
+import { updatePostShares } from "../../store/slices/posts/postSlice";
 
 const SharePost: FC<any> = ({ modalIsOpen, closeModal }) => {
    const post: any = useSelector((state: RootState) => state?.posts?.sharePost?.data);
@@ -16,11 +17,13 @@ const SharePost: FC<any> = ({ modalIsOpen, closeModal }) => {
          const form = new FormData();
 
          form.append("userId", userId || "");
-         form?.append("postId", post?._id);
+         form.append("postId", post?._id);
          const response = await repostPost(form);
          if (response?.data?.status === "ok") {
             toast.success("Successfully shared the post");
-            dispatch(fetchAllposts({}));
+            const newShares = response?.data?.updatedShares ?? ((post?.shares || 0) + 1);
+            dispatch(updatePostShares({ postId: post?._id, shares: newShares }));
+            dispatch(fetchAllposts({ page: 1 }));
          }
       } catch (error) {
          toast.error("Failed to share the post");

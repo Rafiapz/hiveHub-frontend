@@ -3,7 +3,6 @@ import socketService from "../../../service/socketService";
 import { RootState } from "../../../store/store";
 import { useSelector } from "react-redux";
 import Popup from "../../../components/notification/Popup";
-import VideoCall from "../../../components/videoCall/VideoCall";
 import PollInput from "../../../components/Polls/PollInput";
 import Poll from "../../../components/Polls/Poll";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -81,7 +80,6 @@ const PollPage: FC = () => {
             )}
          </div>
 
-         <VideoCall />
       </div>
    );
 };

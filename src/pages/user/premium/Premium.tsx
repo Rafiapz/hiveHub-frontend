@@ -6,7 +6,6 @@ import { RootState } from "../../../store/store";
 import PremiumSuccessModal from "../../../components/modal/PremiumSuccessModal";
 import socketService from "../../../service/socketService";
 import Popup from "../../../components/notification/Popup";
-import VideoCall from "../../../components/videoCall/VideoCall";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
    faCrown,
@@ -263,7 +262,6 @@ const Premium: FC = () => {
          )}
 
          <PremiumSuccessModal modalIsOpen={modalIsOpen} closeModal={closeModal} />
-         <VideoCall />
       </div>
    );
 };

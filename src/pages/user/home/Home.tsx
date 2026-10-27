@@ -3,7 +3,6 @@ import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
-import VideoCall from "../../../components/videoCall/VideoCall";
 import Posts from "../../../components/post/Posts";
 import CreatePostModal from "../../../components/modal/CreatePostModal";
 import EditPostModal from "../../../components/modal/EditPostModal";
@@ -83,7 +82,6 @@ const Home: FC = () => {
                <Comments />
                <ViewStory modalIsOpen={storyViewing} closeModal={handleStoryView} />
                <SharePost modalIsOpen={sharePostModalIsOpen} closeModal={closeSharePostModal} />
-               <VideoCall />
             </div>
          )}
       </>

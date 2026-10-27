@@ -1,8 +1,8 @@
 import Header from "../../components/header/Header";
 import Menu from "../../components/menu/Menu";
-
 import RightSideBar from "../../components/rightSideBar/RightSideBar";
 import { Outlet } from "react-router-dom";
+import VideoCall from "../../components/videoCall/VideoCall";
 
 const MainLayout = () => {
    return (
@@ -13,6 +13,7 @@ const MainLayout = () => {
             <Outlet />
          </div>
          <RightSideBar />
+         <VideoCall />
       </div>
    );
 };

@@ -46,9 +46,9 @@ const HeartIcon: FC<any> = ({ commentId }: any) => {
             handleLikeComment(commentId);
          }}
          icon={faHeart}
-         className={`${
-            likes?.some((ob: any) => ob?.userId === userId) ? "text-red-600" : "text-gray-700"
-         }  mr-4 size-4 mt-3 cursor-pointer text-xl hover:text-red-600 transition duration-300`}
+         className={`w-4 h-4 cursor-pointer hover:text-red-600 transition-colors duration-200 flex-shrink-0 ${
+            likes?.some((ob: any) => ob?.userId === userId) ? "text-red-500" : "text-slate-400"
+         }`}
       />
    );
 };

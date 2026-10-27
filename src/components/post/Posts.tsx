@@ -34,6 +34,8 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
    const networks: any = useSelector((state: RootState) => state?.networks?.network?.data);
    const prevModalOpen = useRef(createPostModalOpen);
+   // Sync local items from Redux store so comment/share/repost counts update dynamically
+   const prevPostsRef = useRef<any[]>([]);
 
    const loadInitialPosts = () => {
       setLoading(true);
@@ -64,6 +66,29 @@ const Posts: FC<any> = ({ openModal, openSharePostModal }: any) => {
    useEffect(() => {
       loadInitialPosts();
    }, []);
+
+   // Sync items from Redux whenever posts data changes (e.g. after a comment or share triggers fetchAllposts)
+   useEffect(() => {
+      if (Array.isArray(posts) && posts.length > 0) {
+         // Merge: preserve local order from infinite scroll, but update counts on each item
+         setItems((prev: any[]) => {
+            if (!prev || prev.length === 0) return posts;
+            const postMap = new Map(posts.map((p: any) => [p._id, p]));
+            const merged = prev.map((item: any) => {
+               const updated = postMap.get(item._id);
+               return updated ? updated : item;
+            });
+            // Append any brand-new posts that aren't in prev yet
+            posts.forEach((p: any) => {
+               if (!prev.find((item: any) => item._id === p._id)) {
+                  merged.unshift(p);
+               }
+            });
+            return merged;
+         });
+         prevPostsRef.current = posts;
+      }
+   }, [posts]);
 
    // When Create Post modal closes, re-fetch to display the newly created post
    useEffect(() => {

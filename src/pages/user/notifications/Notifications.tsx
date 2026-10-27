@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
 import { RootState } from "../../../store/store";
-import VideoCall from "../../../components/videoCall/VideoCall";
 
 const socket = socketService.socket;
 
@@ -30,7 +29,6 @@ const Notifications: FC = () => {
       <div className="sm:ml-64 min-h-screen px-3 sm:px-6 py-6 max-w-4xl mx-auto" style={{ background: "#F1F5F9" }}>
          <Popup notification={notified} data={notificationData} />
          <Notification />
-         <VideoCall />
       </div>
    );
 };

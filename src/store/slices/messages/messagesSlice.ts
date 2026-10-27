@@ -2,13 +2,24 @@ import { createSlice } from "@reduxjs/toolkit";
 import { fetchChats } from "../../actions/message/messageActions";
 
 
-const initialState = {
+interface OutgoingCallData {
+    receiverId: string;
+    receiverData?: any;
+}
 
+interface MessagesState {
+    conversations: any[];
+    messages: any[];
+    videoCall: boolean;
+    outgoingCall: OutgoingCallData | null;
+}
+
+const initialState: MessagesState = {
     conversations: [],
     messages: [],
-    videoCall: false
-
-}
+    videoCall: false,
+    outgoingCall: null,
+};
 
 const messagesSlice = createSlice({
     name: 'messages',
@@ -20,7 +31,13 @@ const messagesSlice = createSlice({
         handleVideoCallModal: (state, action) => {
             state.videoCall = action?.payload?.status
         },
-
+        startVideoCall: (state, action) => {
+            state.outgoingCall = action.payload;
+            state.videoCall = true;
+        },
+        clearOutgoingCall: (state) => {
+            state.outgoingCall = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -30,9 +47,6 @@ const messagesSlice = createSlice({
     }
 })
 
-
-export const { newMessage, handleVideoCallModal } = messagesSlice.actions;
-
-
+export const { newMessage, handleVideoCallModal, startVideoCall, clearOutgoingCall } = messagesSlice.actions;
 
 export default messagesSlice.reducer;    

@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store/store";
 import Popup from "../../../components/notification/Popup";
 import socketService from "../../../service/socketService";
-import VideoCall from "../../../components/videoCall/VideoCall";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faThLarge, faChartBar } from "@fortawesome/free-solid-svg-icons";
 
@@ -79,7 +78,6 @@ function OthersProfile() {
 
          <Comments />
          <UnfollowModal />
-         <VideoCall />
       </div>
    );
 }

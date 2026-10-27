@@ -13,12 +13,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store/store";
 import { fetchPeerId } from "../../service/api";
 import toast from "react-hot-toast";
-import { handleVideoCallModal } from "../../store/slices/messages/messagesSlice";
+import {
+  handleVideoCallModal,
+  clearOutgoingCall,
+} from "../../store/slices/messages/messagesSlice";
 import Modal from "react-modal";
 
 const socket = socketService.socket;
 
-/* ─── tiny icon helpers (inline SVG, no extra dep) ─── */
+/* ─── Inline SVG Icons ─── */
 const IconMicOn = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
     <path d="M12 1a4 4 0 00-4 4v7a4 4 0 008 0V5a4 4 0 00-4-4zm-1 16.93V21h2v-3.07A8.003 8.003 0 0020 10h-2a6 6 0 01-12 0H4a8.003 8.003 0 007 7.93z" />
@@ -54,7 +57,10 @@ const IconPhone = () => (
 const CallTimer: FC<{ running: boolean }> = ({ running }) => {
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
-    if (!running) { setSeconds(0); return; }
+    if (!running) {
+      setSeconds(0);
+      return;
+    }
     const id = setInterval(() => setSeconds((s) => s + 1), 1000);
     return () => clearInterval(id);
   }, [running]);
@@ -63,290 +69,613 @@ const CallTimer: FC<{ running: boolean }> = ({ running }) => {
   return <span className="font-mono tabular-nums">{m}:{s}</span>;
 };
 
-/* ─── Pulsing ring for incoming call avatar ─── */
-const PulseRing: FC = () => (
-  <>
-    <span className="absolute inset-0 rounded-full bg-green-400 opacity-30 animate-ping" />
-    <span className="absolute inset-[-8px] rounded-full border-2 border-green-400/40 animate-pulse" />
-  </>
-);
+/* ─── Pulsing ring for incoming/outgoing avatar ─── */
+const PulseRing: FC<{ color?: string }> = ({ color = "green" }) => {
+  const bg = color === "orange" ? "bg-orange-400" : "bg-green-400";
+  const border = color === "orange" ? "border-orange-400/40" : "border-green-400/40";
+  return (
+    <>
+      <span className={`absolute inset-0 rounded-full ${bg} opacity-30 animate-ping`} />
+      <span className={`absolute inset-[-8px] rounded-full border-2 ${border} animate-pulse`} />
+    </>
+  );
+};
 
 /* ═══════════════════════════════════════════════════════ */
-const VideoCall: FC<any> = forwardRef((__, ref) => {
+const VideoCall: FC<any> = forwardRef((_props: any, ref) => {
   const userId: any = useSelector((state: RootState) => state?.user?.user?.userId);
   const userData: any = useSelector((state: RootState) => state?.user?.user?.data);
-  const [_, setPeerId] = useState("");
-  const [incomingCall, setIncomingCall] = useState<any>(null);
-  const [callAccepted, setCallAccepted] = useState(false);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const currentUserVideoRef = useRef<HTMLVideoElement | null>(null);
-  const peerInstance = useRef<any>(null);
-  const [calling, setCalling] = useState(false);
-  const [remotePeer, setRemotePeer] = useState<any>(null);
-  const [muted, setMuted] = useState(false);
-  const [camOff, setCamOff] = useState(false);
-  const localStreamRef = useRef<MediaStream | null>(null);
-
   const modalIsOpen = useSelector((state: RootState) => state.messages.videoCall);
+  const outgoingCall = useSelector((state: RootState) => (state.messages as any)?.outgoingCall);
   const dispatch = useDispatch<AppDispatch>();
 
-  const openModal = useCallback(() => dispatch(handleVideoCallModal({ status: true })), [dispatch]);
-  const closeModal = useCallback(() => dispatch(handleVideoCallModal({ status: false })), [dispatch]);
+  const [peerId, setPeerId] = useState<string>("");
+  const [incomingCall, setIncomingCall] = useState<any>(null);
+  const [callAccepted, setCallAccepted] = useState(false);
+  const [calling, setCalling] = useState(false);
+  const [remotePeer, setRemotePeer] = useState<string | null>(null);
 
-  /* ── toggle mute ── */
-  const toggleMute = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach((t) => (t.enabled = muted));
-      setMuted((m) => !m);
+  const [callerInfo, setCallerInfo] = useState<{
+    callerId?: string;
+    callerName?: string;
+    callerPhoto?: string;
+  } | null>(null);
+
+  const [calleeInfo, setCalleeInfo] = useState<{
+    receiverId?: string;
+    receiverName?: string;
+    receiverPhoto?: string;
+  } | null>(null);
+
+  const [muted, setMuted] = useState(false);
+  const [camOff, setCamOff] = useState(false);
+
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+
+  const localStreamRef = useRef<MediaStream | null>(null);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
+  const currentUserVideoRef = useRef<HTMLVideoElement | null>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const peerInstance = useRef<any>(null);
+  const currentCallRef = useRef<any>(null);
+  const ringTimeoutRef = useRef<any>(null);
+
+  const openModal = useCallback(() => {
+    dispatch(handleVideoCallModal({ status: true }));
+  }, [dispatch]);
+
+  const closeModal = useCallback(() => {
+    dispatch(handleVideoCallModal({ status: false }));
+    dispatch(clearOutgoingCall());
+  }, [dispatch]);
+
+  /* ── Full Call Cleanup ── */
+  const cleanupCall = useCallback(() => {
+    if (ringTimeoutRef.current) {
+      clearTimeout(ringTimeoutRef.current);
+      ringTimeoutRef.current = null;
     }
-  };
 
-  /* ── toggle camera ── */
-  const toggleCam = () => {
     if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach((t) => (t.enabled = camOff));
-      setCamOff((c) => !c);
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+      localStreamRef.current = null;
     }
-  };
+    setLocalStream(null);
 
-  /* ── init peer ── */
-  useEffect(() => {
-    const peer = new Peer();
-    peer.on("open", (id) => {
-      setPeerId(id);
-      socket.emit("peer-connection", { id, userId });
-    });
-    peer.on("call", (call) => {
-      setIncomingCall(call);
-      openModal();
-      setTimeout(() => { try { declineCall(); } catch { } }, 25000);
-    });
-    peerInstance.current = peer;
-  }, []);
+    remoteStreamRef.current = null;
+    setRemoteStream(null);
 
-  /* ── answer call ── */
-  const answerCall = () => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-      localStreamRef.current = stream;
-      if (currentUserVideoRef.current) {
-        currentUserVideoRef.current.srcObject = stream;
-        currentUserVideoRef.current.play().catch(() => { });
-        if (incomingCall) incomingCall.answer(stream);
-        incomingCall.on("stream", (remoteStream: any) => {
-          if (remoteVideoRef.current) {
-            remoteVideoRef.current.srcObject = remoteStream;
-            remoteVideoRef.current.play().catch(() => { });
-            setRemotePeer(incomingCall?.peer);
-            setIncomingCall(null);
-            setCallAccepted(true);
-          }
-        });
-      }
-    }).catch(() => toast.error("Camera/microphone access denied"));
-  };
+    if (currentCallRef.current) {
+      try {
+        currentCallRef.current.close();
+      } catch (e) { }
+      currentCallRef.current = null;
+    }
 
-  /* ── imperative call peer ── */
-  useImperativeHandle(ref, () => ({
-    async callPeer(remoteUser: any) {
-      fetchPeerId(remoteUser)
-        .then((response) => {
-          const remotePeerId = response.data.data.peerId;
-          setRemotePeer(remotePeerId);
-          if (remotePeerId === undefined) throw new Error("Unable to connect");
-          setCalling(true);
-          openModal();
-          navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            localStreamRef.current = stream;
-            if (currentUserVideoRef.current) {
-              currentUserVideoRef.current.srcObject = stream;
-              currentUserVideoRef.current.play().catch(() => { });
-              const call = peerInstance.current.call(remotePeerId, stream);
-              call.on("stream", (remoteStream: any) => {
-                if (remoteVideoRef.current) {
-                  remoteVideoRef.current.srcObject = remoteStream;
-                  remoteVideoRef.current.play().catch(() => { });
-                  setCallAccepted(true);
-                }
-              });
-            }
-          });
-        })
-        .catch(() => toast.error("The person is not online"));
-    },
-  }), []);
+    if (currentUserVideoRef.current) {
+      currentUserVideoRef.current.srcObject = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
 
-  /* ── socket: call rejected ── */
-  useEffect(() => {
-    const handler = () => {
-      localStreamRef.current?.getTracks().forEach((t) => t.stop());
+    setCalling(false);
+    setCallAccepted(false);
+    setIncomingCall(null);
+    setRemotePeer(null);
+    setCallerInfo(null);
+    setCalleeInfo(null);
+    setMuted(false);
+    setCamOff(false);
+
+    closeModal();
+  }, [closeModal]);
+
+  /* ── Decline Incoming Call ── */
+  const declineCall = useCallback(() => {
+    if (ringTimeoutRef.current) {
+      clearTimeout(ringTimeoutRef.current);
+      ringTimeoutRef.current = null;
+    }
+
+    const callerPeerId = incomingCall?.peer || remotePeer;
+    const callerUserId = callerInfo?.callerId;
+
+    try {
+      incomingCall?.close();
+    } catch (e) { }
+    currentCallRef.current = null;
+
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((t) => t.stop());
       localStreamRef.current = null;
-      if (currentUserVideoRef.current) currentUserVideoRef.current.srcObject = null;
-      setCalling(false);
-      closeModal();
-      toast("Call was declined", { icon: "📵" });
-    };
-    socket.on("call-rejected", handler);
-    return () => { socket.off("call-rejected", handler); };
-  }, []);
+      setLocalStream(null);
+    }
 
-  /* ── socket: call ended ── */
-  useEffect(() => {
-    const handler = () => {
-      localStreamRef.current?.getTracks().forEach((t) => t.stop());
-      localStreamRef.current = null;
-      if (currentUserVideoRef.current) currentUserVideoRef.current.srcObject = null;
-      setCalling(false);
-      setCallAccepted(false);
-      closeModal();
-      window.location.reload();
-    };
-    socket.on("call-ended", handler);
-    return () => { socket.off("call-ended", handler); };
-  }, []);
-
-  const declineCall = () => {
-    try { incomingCall?.close(); } catch { }
     setIncomingCall(null);
     setCallAccepted(false);
     setCalling(false);
-    socket.emit("reject-call", incomingCall?.peer);
     closeModal();
+
+    socket.emit("reject-call", {
+      peerId: callerPeerId,
+      callerId: callerUserId,
+    });
+  }, [incomingCall, remotePeer, callerInfo, closeModal]);
+
+  /* ── Cancel Outgoing Call (caller hangs up before answer) ── */
+  const cancelOutgoingCall = useCallback(() => {
+    const targetPeer = remotePeer;
+    const targetUserId = calleeInfo?.receiverId;
+
+    cleanupCall();
+
+    socket.emit("cancel-call", {
+      peerId: targetPeer,
+      targetUserId,
+    });
+  }, [remotePeer, calleeInfo, cleanupCall]);
+
+  /* ── End Active Call ── */
+  const endCall = useCallback(() => {
+    const targetPeer = remotePeer;
+    const targetUserId = callerInfo?.callerId || calleeInfo?.receiverId;
+
+    cleanupCall();
+
+    socket.emit("end-call", {
+      peerId: targetPeer,
+      targetUserId,
+    });
+  }, [remotePeer, callerInfo, calleeInfo, cleanupCall]);
+
+  /* ── Answer Incoming Call ── */
+  const answerCall = async () => {
+    if (ringTimeoutRef.current) {
+      clearTimeout(ringTimeoutRef.current);
+      ringTimeoutRef.current = null;
+    }
+    if (!incomingCall) return;
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+
+      const call = incomingCall;
+      currentCallRef.current = call;
+      setRemotePeer(call.peer);
+
+      // Transition to active in-call view
+      setCallAccepted(true);
+      setIncomingCall(null);
+
+      call.answer(stream);
+
+      call.on("stream", (remStream: MediaStream) => {
+        remoteStreamRef.current = remStream;
+        setRemoteStream(remStream);
+      });
+
+      call.on("close", () => {
+        cleanupCall();
+        toast("Call ended", { icon: "📞" });
+      });
+
+      call.on("error", (err: any) => {
+        console.error("Peer call error:", err);
+        cleanupCall();
+      });
+    } catch (err: any) {
+      console.error("Camera/mic access error:", err);
+      toast.error("Could not access camera/microphone");
+      declineCall();
+    }
   };
 
-  const endCall = () => {
-    localStreamRef.current?.getTracks().forEach((t) => t.stop());
-    try { peerInstance.current?.destroy(); } catch { }
-    setCalling(false);
-    setCallAccepted(false);
-    closeModal();
-    socket.emit("end-call", remotePeer);
-    window.location.reload();
+  /* ── Make Outgoing Call ── */
+  const callPeer = async (remoteUserId: string, targetData?: any) => {
+    if (!remoteUserId) {
+      toast.error("User not found");
+      return;
+    }
+
+    if (!peerInstance.current || !peerInstance.current.id) {
+      toast.error("Video service is connecting. Please try again.");
+      return;
+    }
+
+    try {
+      const response = await fetchPeerId(remoteUserId);
+      const remotePeerId = response?.data?.data?.peerId;
+
+      if (!remotePeerId) {
+        toast.error("The user is currently offline");
+        cleanupCall();
+        return;
+      }
+
+      setRemotePeer(remotePeerId);
+      setCalleeInfo({
+        receiverId: remoteUserId,
+        receiverName: targetData?.userName || targetData?.name || "HiveHub User",
+        receiverPhoto: targetData?.profilePhoto || targetData?.image || "",
+      });
+
+      setCalling(true);
+      openModal();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+
+      const call = peerInstance.current.call(remotePeerId, stream, {
+        metadata: {
+          callerId: userId,
+          callerName: userData?.userName || userData?.name || "HiveHub User",
+          callerPhoto: userData?.profilePhoto || "",
+        },
+      });
+
+      currentCallRef.current = call;
+
+      call.on("stream", (remStream: MediaStream) => {
+        remoteStreamRef.current = remStream;
+        setRemoteStream(remStream);
+        setCallAccepted(true);
+        setCalling(false);
+      });
+
+      call.on("close", () => {
+        cleanupCall();
+        toast("Call ended", { icon: "📞" });
+      });
+
+      call.on("error", (err: any) => {
+        console.error("Call error:", err);
+        cleanupCall();
+        toast.error("Connection error");
+      });
+    } catch (err: any) {
+      console.error("callPeer error:", err);
+      cleanupCall();
+      toast.error("Failed to start call");
+    }
   };
 
-  const declineOutGoingCall = () => {
-    localStreamRef.current?.getTracks().forEach((t) => t.stop());
-    try { peerInstance.current?.destroy(); } catch { }
-    setCalling(false);
-    closeModal();
+  /* ── Expose imperative ref ── */
+  useImperativeHandle(ref, () => ({
+    callPeer(remoteUserId: string, targetData?: any) {
+      callPeer(remoteUserId, targetData);
+    },
+  }));
+
+  /* ── Watch Redux outgoingCall ── */
+  useEffect(() => {
+    if (outgoingCall?.receiverId) {
+      callPeer(outgoingCall.receiverId, outgoingCall.receiverData);
+    }
+  }, [outgoingCall]);
+
+  /* ── Initialize PeerJS once ── */
+  useEffect(() => {
+    const peer = new Peer({
+      config: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+          { urls: "stun:global.stun.twilio.com:3478" },
+        ],
+      },
+    });
+
+    peer.on("open", (id) => {
+      setPeerId(id);
+      if (userId && socket.connected) {
+        socket.emit("peer-connection", { id, userId });
+      }
+    });
+
+    peer.on("call", (call) => {
+      currentCallRef.current = call;
+      setIncomingCall(call);
+      setCallerInfo(
+        call.metadata || {
+          callerId: null,
+          callerName: "Incoming Call",
+          callerPhoto: "",
+        }
+      );
+      openModal();
+
+      // Auto decline timeout after 30 seconds
+      if (ringTimeoutRef.current) clearTimeout(ringTimeoutRef.current);
+      ringTimeoutRef.current = setTimeout(() => {
+        declineCall();
+      }, 30000);
+    });
+
+    peer.on("error", (err: any) => {
+      console.error("PeerJS error:", err);
+      if (err?.type === "peer-unavailable") {
+        toast.error("User is not available for video calls");
+        cleanupCall();
+      }
+    });
+
+    peerInstance.current = peer;
+
+    return () => {
+      cleanupCall();
+      try {
+        peer.destroy();
+      } catch (e) { }
+    };
+  }, []);
+
+  /* ── Sync peerId to backend whenever userId or socket connects ── */
+  useEffect(() => {
+    if (peerId && userId && socket.connected) {
+      socket.emit("peer-connection", { id: peerId, userId });
+    }
+
+    const onConnect = () => {
+      if ((peerId || peerInstance.current?.id) && userId) {
+        socket.emit("peer-connection", {
+          id: peerId || peerInstance.current?.id,
+          userId,
+        });
+      }
+    };
+
+    socket.on("connect", onConnect);
+    return () => {
+      socket.off("connect", onConnect);
+    };
+  }, [peerId, userId]);
+
+  /* ── Socket Call Events ── */
+  useEffect(() => {
+    const handleCallRejected = () => {
+      cleanupCall();
+      toast("Call was declined", { icon: "📵" });
+    };
+
+    const handleCallEnded = () => {
+      cleanupCall();
+      toast("Call ended", { icon: "📞" });
+    };
+
+    const handleCallCancelled = () => {
+      cleanupCall();
+      toast("Call was cancelled", { icon: "📵" });
+    };
+
+    socket.on("call-rejected", handleCallRejected);
+    socket.on("call-ended", handleCallEnded);
+    socket.on("call-cancelled", handleCallCancelled);
+
+    return () => {
+      socket.off("call-rejected", handleCallRejected);
+      socket.off("call-ended", handleCallEnded);
+      socket.off("call-cancelled", handleCallCancelled);
+    };
+  }, [cleanupCall]);
+
+  /* ── Bind Local Video Stream to DOM element ── */
+  useEffect(() => {
+    if (currentUserVideoRef.current) {
+      if (localStream) {
+        currentUserVideoRef.current.srcObject = localStream;
+        currentUserVideoRef.current.play().catch(() => { });
+      } else {
+        currentUserVideoRef.current.srcObject = null;
+      }
+    }
+  }, [localStream, callAccepted, calling]);
+
+  /* ── Bind Remote Video Stream to DOM element ── */
+  useEffect(() => {
+    if (remoteVideoRef.current) {
+      if (remoteStream) {
+        remoteVideoRef.current.srcObject = remoteStream;
+        remoteVideoRef.current.play().catch(() => { });
+      } else {
+        remoteVideoRef.current.srcObject = null;
+      }
+    }
+  }, [remoteStream, callAccepted]);
+
+  /* ── Toggle Mute ── */
+  const toggleMute = () => {
+    if (localStreamRef.current) {
+      const nextMuted = !muted;
+      localStreamRef.current.getAudioTracks().forEach((track) => {
+        track.enabled = !nextMuted;
+      });
+      setMuted(nextMuted);
+    }
+  };
+
+  /* ── Toggle Camera ── */
+  const toggleCam = () => {
+    if (localStreamRef.current) {
+      const nextCamOff = !camOff;
+      localStreamRef.current.getVideoTracks().forEach((track) => {
+        track.enabled = !nextCamOff;
+      });
+      setCamOff(nextCamOff);
+    }
   };
 
   /* ─────────────────────── RENDER ─────────────────────── */
+  const callerDisplayName = callerInfo?.callerName || "HiveHub User";
+  const callerPhotoUrl =
+    callerInfo?.callerPhoto ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      callerDisplayName
+    )}&background=F97316&color=fff`;
+
+  const calleeDisplayName = calleeInfo?.receiverName || "Connecting...";
+  const calleePhotoUrl =
+    calleeInfo?.receiverPhoto ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      calleeDisplayName
+    )}&background=F97316&color=fff`;
+
   return (
     <Modal
       appElement={document.getElementById("root") as HTMLElement}
-      overlayClassName="fixed inset-0 z-[999] flex items-center justify-center"
-      className="outline-none border-none relative"
+      overlayClassName="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="outline-none border-none relative w-full h-full flex items-center justify-center"
       isOpen={modalIsOpen}
       onRequestClose={() => { }}
       shouldCloseOnOverlayClick={false}
     >
-      {/* ══ INCOMING CALL SCREEN ══ */}
+      {/* ══ 1. INCOMING CALL SCREEN ══ */}
       {incomingCall && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center">
-          {/* blurred backdrop */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-md" />
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950/90 backdrop-blur-xl" />
 
-          {/* card */}
-          <div className="relative z-10 flex flex-col items-center gap-6 px-8 py-10 rounded-3xl"
-            style={{ background: "rgba(255,255,255,0.06)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 32px 64px rgba(0,0,0,0.5)", maxWidth: 360, width: "90vw" }}
+          <div
+            className="relative z-10 flex flex-col items-center gap-6 px-8 py-10 rounded-3xl"
+            style={{
+              background: "rgba(255, 255, 255, 0.08)",
+              backdropFilter: "blur(24px)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 32px 64px rgba(0,0,0,0.6)",
+              maxWidth: 380,
+              width: "100%",
+            }}
           >
-            {/* animated waveform ring + avatar */}
+            {/* Pulsing ring + Caller Avatar */}
             <div className="relative flex items-center justify-center w-28 h-28">
-              <PulseRing />
-              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-green-400/60 shadow-2xl relative z-10">
+              <PulseRing color="green" />
+              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-green-400/70 shadow-2xl relative z-10 bg-slate-800">
                 <img
-                  src={userData?.profilePhoto || `https://ui-avatars.com/api/?name=Caller&background=F97316&color=fff`}
-                  alt="Caller"
+                  src={callerPhotoUrl}
+                  alt={callerDisplayName}
                   className="w-full h-full object-cover"
-                  onError={(e: any) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=Caller&background=F97316&color=fff`; }}
+                  onError={(e: any) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=Caller&background=F97316&color=fff`;
+                  }}
                 />
               </div>
             </div>
 
-            {/* caller info */}
+            {/* Caller Info */}
             <div className="text-center">
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1">Incoming Video Call</p>
-              <h2 className="text-white text-2xl font-bold tracking-tight">Incoming Call</h2>
-              <p className="text-white/40 text-sm mt-1">HiveHub Video</p>
+              <p className="text-green-400 text-xs font-semibold uppercase tracking-widest mb-1.5 flex items-center justify-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-ping inline-block" />
+                Incoming Video Call
+              </p>
+              <h2 className="text-white text-2xl font-bold tracking-tight">
+                {callerDisplayName}
+              </h2>
+              <p className="text-white/50 text-sm mt-1">HiveHub Video</p>
             </div>
 
-            {/* animated dots */}
-            <div className="flex items-center gap-1.5">
+            {/* Animated Dots */}
+            <div className="flex items-center gap-2">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className="w-1.5 h-1.5 bg-green-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-green-400 rounded-full animate-bounce"
                   style={{ animationDelay: `${i * 0.15}s` }}
                 />
               ))}
             </div>
 
-            {/* action buttons */}
-            <div className="flex items-center gap-8 mt-2">
-              {/* decline */}
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-10 mt-2 w-full">
+              {/* Decline Button */}
               <div className="flex flex-col items-center gap-2">
                 <button
+                  type="button"
                   onClick={declineCall}
-                  className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-500/40 transition-all duration-200 active:scale-95"
+                  className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-lg shadow-red-600/50 transition-all duration-200 active:scale-95"
+                  title="Decline Call"
                 >
                   <IconPhoneSlash />
                 </button>
-                <span className="text-white/50 text-xs font-medium">Decline</span>
+                <span className="text-white/60 text-xs font-medium">Decline</span>
               </div>
 
-              {/* accept */}
+              {/* Accept Button */}
               <div className="flex flex-col items-center gap-2">
                 <button
+                  type="button"
                   onClick={answerCall}
-                  className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center shadow-lg shadow-green-500/40 transition-all duration-200 active:scale-95 animate-pulse"
-                  style={{ animationDuration: "1.5s" }}
+                  className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-400 text-white flex items-center justify-center shadow-lg shadow-green-500/50 transition-all duration-200 active:scale-95 animate-pulse"
+                  title="Accept Call"
                 >
                   <IconPhone />
                 </button>
-                <span className="text-white/50 text-xs font-medium">Accept</span>
+                <span className="text-white/60 text-xs font-medium">Accept</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ══ MAIN CALL WINDOW (outgoing / in-call) ══ */}
+      {/* ══ 2. MAIN CALL WINDOW (Outgoing Calling or Active In-Call) ══ */}
       {(calling || callAccepted) && (
-        <div className="fixed inset-0 z-[1000] flex flex-col bg-slate-900 overflow-hidden">
-          {/* ── Remote video (full screen) ── */}
+        <div className="fixed inset-0 z-[10000] flex flex-col bg-slate-950 overflow-hidden">
+          {/* Remote Video (Full Screen) */}
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${callAccepted ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${callAccepted && remoteStream ? "opacity-100" : "opacity-0"
+              }`}
           />
 
-          {/* ── Gradient overlays for readability ── */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.7) 100%)" }}
+          {/* Gradient Overlays */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, transparent 25%, transparent 65%, rgba(0,0,0,0.85) 100%)",
+            }}
           />
 
-          {/* ── Outgoing / waiting screen ── */}
+          {/* Outgoing / Connecting Screen (shown while waiting for answer) */}
           {!callAccepted && calling && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-              <div className="relative w-28 h-28 mb-6">
-                <PulseRing />
-                <div className="w-28 h-28 rounded-full overflow-hidden ring-4 ring-orange-400/50 shadow-2xl relative z-10">
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-4">
+              <div className="relative w-32 h-32 mb-6">
+                <PulseRing color="orange" />
+                <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-orange-400/60 shadow-2xl relative z-10 bg-slate-800">
                   <img
-                    src={userData?.profilePhoto || `https://ui-avatars.com/api/?name=Me&background=F97316&color=fff`}
-                    alt="Me"
+                    src={calleePhotoUrl}
+                    alt={calleeDisplayName}
                     className="w-full h-full object-cover"
-                    onError={(e: any) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=Me&background=F97316&color=fff`; }}
+                    onError={(e: any) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=User&background=F97316&color=fff`;
+                    }}
                   />
                 </div>
               </div>
-              <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-1">Calling…</p>
-              <h2 className="text-white text-2xl font-bold tracking-tight mb-3">Connecting</h2>
-              <div className="flex items-center gap-1.5">
+              <p className="text-orange-400 text-xs font-semibold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-orange-400 animate-ping inline-block" />
+                Ringing
+              </p>
+              <h2 className="text-white text-3xl font-bold tracking-tight mb-2">
+                {calleeDisplayName}
+              </h2>
+              <p className="text-white/50 text-sm mb-6">Waiting for response...</p>
+              <div className="flex items-center gap-2">
                 {[0, 1, 2, 3].map((i) => (
                   <span
                     key={i}
-                    className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"
+                    className="w-2.5 h-2.5 bg-orange-400 rounded-full animate-bounce"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -354,88 +683,113 @@ const VideoCall: FC<any> = forwardRef((__, ref) => {
             </div>
           )}
 
-          {/* ── Top bar: status + timer ── */}
-          <div className="relative z-20 flex items-center justify-between px-5 pt-safe pt-5 pb-3">
+          {/* Top Bar: Status + Live Duration Timer */}
+          <div className="relative z-20 flex items-center justify-between px-6 pt-6 pb-3">
             <div className="flex items-center gap-2">
               {callAccepted && (
-                <span className="flex items-center gap-1.5 bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1 rounded-full border border-green-500/30">
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                  Live
+                <span className="flex items-center gap-2 bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-500/30 shadow-sm backdrop-blur-md">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  Live Call
                 </span>
               )}
             </div>
+
             {callAccepted && (
-              <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm text-white/80 text-sm font-medium px-3 py-1.5 rounded-full">
+              <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md text-white/90 text-sm font-medium px-4 py-1.5 rounded-full border border-white/10 shadow-sm">
                 <span className="text-orange-400">⏱</span>
                 <CallTimer running={callAccepted} />
               </div>
             )}
           </div>
 
-          {/* ── Local video (PiP) ── */}
-          <div className="absolute top-20 right-4 z-30">
+          {/* Local Video (PiP preview in top right) */}
+          <div className="absolute top-20 right-6 z-30">
             <div
-              className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 cursor-pointer hover:border-orange-400/60 transition-all duration-200 group"
-              style={{ width: 110, height: 155 }}
+              className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 hover:border-orange-400/70 transition-all duration-200 group bg-slate-900"
+              style={{ width: 120, height: 165 }}
             >
               <video
                 ref={currentUserVideoRef}
                 muted
                 autoPlay
                 playsInline
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-x-[-1]"
               />
               {camOff && (
-                <div className="absolute inset-0 bg-slate-800 flex items-center justify-center">
+                <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center gap-1 text-white/60">
                   <IconCamOff />
+                  <span className="text-[10px] font-medium">Camera off</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute bottom-1.5 left-0 right-0 text-center text-white/70 text-[10px] font-medium">You</span>
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
+              <span className="absolute bottom-2 left-0 right-0 text-center text-white/80 text-[11px] font-semibold tracking-wide drop-shadow">
+                You
+              </span>
             </div>
           </div>
 
-          {/* ── Bottom control bar ── */}
+          {/* Bottom Floating Control Bar */}
           <div className="absolute bottom-0 left-0 right-0 z-20 pb-8 pt-6 px-6 flex flex-col items-center gap-4">
-            {/* pill controls */}
             <div
-              className="flex items-center gap-4 px-6 py-4 rounded-3xl"
-              style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.1)" }}
+              className="flex items-center gap-5 px-7 py-4 rounded-3xl"
+              style={{
+                background: "rgba(15, 23, 42, 0.75)",
+                backdropFilter: "blur(24px)",
+                border: "1px solid rgba(255, 255, 255, 0.12)",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+              }}
             >
-              {/* Mute */}
+              {/* Mute Button */}
               <button
+                type="button"
                 onClick={toggleMute}
                 title={muted ? "Unmute" : "Mute"}
-                className={`flex flex-col items-center gap-1.5 group`}
+                className="flex flex-col items-center gap-1.5 focus:outline-none"
               >
-                <div className={`w-13 h-13 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${muted ? "bg-red-500/90 text-white shadow-lg shadow-red-500/40" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${muted
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
+                      : "bg-white/10 text-white hover:bg-white/20 active:scale-95"
+                    }`}
+                >
                   {muted ? <IconMicOff /> : <IconMicOn />}
                 </div>
-                <span className="text-white/50 text-[10px] font-medium">{muted ? "Unmute" : "Mute"}</span>
+                <span className="text-white/60 text-[10px] font-medium">
+                  {muted ? "Unmute" : "Mute"}
+                </span>
               </button>
 
-              {/* End / Decline call */}
+              {/* End / Hang Up Button */}
               <button
-                onClick={callAccepted ? endCall : declineOutGoingCall}
+                type="button"
+                onClick={callAccepted ? endCall : cancelOutgoingCall}
                 title="End Call"
-                className="flex flex-col items-center gap-1.5"
+                className="flex flex-col items-center gap-1.5 focus:outline-none"
               >
-                <div className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xl shadow-red-500/50 transition-all duration-200 active:scale-95">
+                <div className="w-16 h-16 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xl shadow-red-600/50 transition-all duration-200 active:scale-95">
                   <IconPhoneSlash />
                 </div>
-                <span className="text-white/50 text-[10px] font-medium">End</span>
+                <span className="text-white/60 text-[10px] font-medium">End</span>
               </button>
 
-              {/* Camera */}
+              {/* Camera Button */}
               <button
+                type="button"
                 onClick={toggleCam}
                 title={camOff ? "Turn Camera On" : "Turn Camera Off"}
-                className="flex flex-col items-center gap-1.5"
+                className="flex flex-col items-center gap-1.5 focus:outline-none"
               >
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${camOff ? "bg-red-500/90 text-white shadow-lg shadow-red-500/40" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                <div
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 ${camOff
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
+                      : "bg-white/10 text-white hover:bg-white/20 active:scale-95"
+                    }`}
+                >
                   {camOff ? <IconCamOff /> : <IconCamOn />}
                 </div>
-                <span className="text-white/50 text-[10px] font-medium">{camOff ? "Cam Off" : "Camera"}</span>
+                <span className="text-white/60 text-[10px] font-medium">
+                  {camOff ? "Cam Off" : "Camera"}
+                </span>
               </button>
             </div>
           </div>
